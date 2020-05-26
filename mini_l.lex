@@ -1,5 +1,6 @@
 %{
-#include "y.tab.h"
+#include "parser.tab.h"
+#include <stdlib.h> 
    int currLine = 1, currPos = 1;
    int numNumbers = 0;
    int numOperators = 0;
@@ -18,7 +19,7 @@
 
 DIGIT    [0-9]
 LETTER    [a-zA-Z]
-INTEGER  [0-9]+
+INTEGER  [0-9]
 NewLine  [\n] 
    
 %%
@@ -72,8 +73,8 @@ NewLine  [\n]
 "false"        {currPos += yyleng; numWords++; return FALSE;}
 "return"       {currPos += yyleng; numWords++; return RETURN;}
 
-{INTEGER}+      {currPos += yyleng; atoi(yytext); return NUMBER;}
-({LETTER}({LETTER}|{DIGIT}|"_")*({LETTER}|{DIGIT}))|({LETTER})      {currPos += yyleng; numWords++; yylval.identval=strdup(yytext); return IDENT;} 
+{INTEGER}({INTEGER})*       {currPos += yyleng; yylval.type_id.val=(int )strtol(yytext, NULL, 10); return NUMBER;} 
+({LETTER}({LETTER}|{DIGIT}|"_")*({LETTER}|{DIGIT}))|({LETTER})      {currPos += yyleng; numWords++; yylval.type_id.name=strdup(yytext); return IDENT;} 
 "##".*{NewLine}           {currPos += yyleng; numComments++;}
 {NewLine}                 {currLine += 1; currPos = 1;}     
 

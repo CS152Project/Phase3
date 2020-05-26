@@ -109,20 +109,14 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 13 "calc.y" /* yacc.c:1909  */
+   
+  struct _typeId
+    {
+      char *name;
+      int val;
+    } type_id;  
 
-   struct _string
-   {
-     char * identVal;
-   } string;
-   
-   struct _number
-   {
-     int iVal;
-   } number;   
-   
-   
-
-#line 126 "parser.tab.h" /* yacc.c:1909  */
+#line 120 "parser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -7,6 +7,7 @@ endlocals
 beginbody
 x := 7;
 read x;
+x[1000]; 
 write x;
 endbody
  

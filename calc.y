@@ -10,18 +10,12 @@ extern int currPos;
 int yylex();
 %}
 
-%union{
-   struct _string
-   {
-     char * identVal;
-   } string;
-   
-   struct _number
-   {
-     int iVal;
-   } number;   
-   
-   
+%union {   
+  struct _typeId
+    {
+      char *name;
+      int val;
+    } type_id;  
 }
 %error-verbose
 %start program
@@ -31,9 +25,8 @@ int yylex();
 %token BEGIN_PARAMS END_PARAMS BEGINLOOP ENDLOOP BEGIN_LOCALS END_LOCALS 
 %token BEGIN_BODY END_BODY INTEGER ARRAY OF ENDIF ELSE IF THEN WHILE DO  
 %token EQ NEQ LT GT GTE LTE AND OR NOT TRUE FALSE RETURN ASSIGN    
-%token <string> IDENT
-%token <number> NUMBER
-
+%token <type_id> IDENT
+%token <type_id> NUMBER
 %right ASSIGN
 %left OR
 %left AND
@@ -45,7 +38,7 @@ int yylex();
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <string> statements var expression expressions multiplicative_expression statement term    
+%type <type_id> statements expression expressions multiplicative_expression statement term var vars    
 
 %%
 
@@ -109,7 +102,7 @@ statements: statement SEMICOLON
           {printf("syntax error: missing SEMICOLON at line %d\n", currLine);} 
          
 statement: var ASSIGN expressions
-	   {printf("%s = %s", $1.identVal, $3.identVal);}  
+	   {printf("= %s, %d\n", $1.name, $3.val);}  
          | IF bool_expression THEN statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
          | IF bool_expression THEN statements ELSE statements ENDIF
@@ -121,11 +114,11 @@ statement: var ASSIGN expressions
          | FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements ENDLOOP
          {printf("statement->FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements SEMICOLON ENDLOOP\n");}
          | READ vars 
-         {printf("statement->READ var\n");}
+         {printf(".< %s\n", $2.name);}  
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf("statement->WRITE vars\n");} 
+         {printf(".> %s\n", $2.name);} 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
@@ -183,9 +176,9 @@ comp: EQ
    ;
 
 var: IDENT  
-    {$$.identVal = $1.identVal;}
+    {$$.name = $1.name;} 
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
-    {printf("var->ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
+    {}  
     | error L_SQUARE_BRACKET expression R_SQUARE_BRACKET
     {printf("syntax error: missing identifier in line %d\n", currLine);}
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET
@@ -199,9 +192,9 @@ var: IDENT
     ;
 
 vars: var
-    {printf("vars->var\n");}
+    {$$.name = $1.name;}
     | var COMMA vars
-    {printf("vars->var COMMA vars\n");}
+    {}
     | error COMMA vars
     {printf("syntax error: missing variable in line %d\n", currLine);}
     | var COMMA error
@@ -209,9 +202,9 @@ vars: var
      
    ;
 expression: multiplicative_expression  
-	  {$$.identVal = $1.identVal;}
+	  {$$.val = $1.val;} 
          | multiplicative_expression PLUS multiplicative_expression
-          {printf("expression->multiplicative_expression PLUS multiplicative_expression\n");} 
+          {} 
          | multiplicative_expression MINUS multiplicative_expression
           {printf("expression->multiplicative_expression MINUS multiplicative_expression\n");}
 	 | error PLUS multiplicative_expression
@@ -224,11 +217,11 @@ expression: multiplicative_expression
 	  {printf("Syntax error: Missing second term for subtraction at line %d\n", currLine);}
          ;
 expressions: expression
-	   {$$.identVal = $1.identVal;}
+	   {$$.val = $1.val;} 
          ;
 
 multiplicative_expression: term 
-			 {$$.identVal = $1.identVal;} 
+			 {$$.val = $1.val;}  
                         | term MULT term
                          {printf("multiplicative_expression->term MULT term\n");}
                         | term DIV term 
@@ -261,17 +254,13 @@ term: ident L_PAREN expressions R_PAREN
     | var 
     {printf("term->Var\n");}
     | NUMBER 
-       /* {$$.identVal = $1.iVal;} */ 
-     /* {itoa($1.iVal, $$.identVal, 10);} */
-     /*   {$$.identVal = atoa($1.iVal);}  */
-     /*     {$$.identVal = (char *)$1.iVal;} */
-        {sprintf($$.identVal, "%d", $1.iVal);}
+    {$$.val = $1.val;}
     | L_PAREN expressions R_PAREN
     {printf("term->L_PAREN expressions R_PAREN\n");}
     | MINUS var
     {printf("term->MINUS var\n");}
     | MINUS NUMBER 
-    {printf("term->MINUS NUMBER\n");}
+    {}
     | MINUS L_PAREN expressions R_PAREN
     {printf("term->MINUS L_PAREN expressions R_PAREN\n");}
     ;
