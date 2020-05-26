@@ -1,5 +1,4 @@
 %{
-#include <iostream>
 #include "y.tab.h"
    int currLine = 1, currPos = 1;
    int numNumbers = 0;

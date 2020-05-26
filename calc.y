@@ -3,24 +3,25 @@
 #include <stdlib.h>
 #include "string.h"
 
+void yyerror(const char *msg);
 extern FILE * yyin;
 extern int currLine;
 extern int currPos;
 int yylex();
-bool no_error = true;
-
-struct dec_type 
-{
-   string code;
-   list<string> ids;
-}
-
-void yyerror(const char *msg);
 %}
 
 %union{
-   char * identval;
-   int iVal;
+   struct _string
+   {
+     char * identVal;
+   } string;
+   
+   struct _number
+   {
+     int iVal;
+   } number;   
+   
+   
 }
 %error-verbose
 %start program
@@ -29,9 +30,9 @@ void yyerror(const char *msg);
 %token L_SQUARE_BRACKET R_SQUARE_BRACKET L_PAREN R_PAREN 
 %token BEGIN_PARAMS END_PARAMS BEGINLOOP ENDLOOP BEGIN_LOCALS END_LOCALS 
 %token BEGIN_BODY END_BODY INTEGER ARRAY OF ENDIF ELSE IF THEN WHILE DO  
-%token EQ NEQ LT GT GTE LTE AND OR NOT TRUE FALSE RETURN ASSIGN  
-%token <identVal> IDENT  
-%token <iVal> NUMBER
+%token EQ NEQ LT GT GTE LTE AND OR NOT TRUE FALSE RETURN ASSIGN    
+%token <string> IDENT
+%token <number> NUMBER
 
 %right ASSIGN
 %left OR
@@ -40,41 +41,36 @@ void yyerror(const char *msg);
 %left EQ NEQ LT GTE LTE 
 %left ADD SUB
 %left MUlT DIV PER
-%nonassoc UMINUS
+%right UMINUS
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <string> program function statements
-%type <dec_type> declarations
+%type <string> statements var expression expressions multiplicative_expression statement term    
 
 %%
 
 
-start_program: program {if (no_error) 
-	     printf("%s\n", $1);}
+/*start_program: program {if (no_error) */
+	   /*  printf("%s\n", $1);} */
 
 program: /*empty*/ 
-       {$$ = "";} 
+       {} 
        | functions program
-       {$$ = $1 + "\n" + $2}
+       {}
        ;
 functions: /*empty*/
-	 {$$ = "";}
+          {} 	 
        | function functions
          {printf("functions->function functions\n");}
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
-	{$$ = "func " + $2 + "\n";
-         $$ += $5 + "\n";
-         $$ += $8 + "\n";
-         $$ += $11 + "\n";
-         $$ += "endfunc ";
+	{ 
         } 
        ;
 declarations: /*empty*/
-	   {$$ = "";}
+	   {}
         | declaration SEMICOLON declarations 
-           {$$ = ". name" + $2 + "\n";}
+           {}
         | error SEMICOLON declarations
            {printf("syntax error: Missing declaration at line %d\n", currLine);}
         | declaration error declarations 
@@ -113,7 +109,7 @@ statements: statement SEMICOLON
           {printf("syntax error: missing SEMICOLON at line %d\n", currLine);} 
          
 statement: var ASSIGN expressions
-	 {printf("statement->Var ASSIGN expression\n");}
+	   {printf("%s = %s", $1.identVal, $3.identVal);}  
          | IF bool_expression THEN statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
          | IF bool_expression THEN statements ELSE statements ENDIF
@@ -187,7 +183,7 @@ comp: EQ
    ;
 
 var: IDENT  
-    {printf("var->IDENT\n");}
+    {$$.identVal = $1.identVal;}
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
     {printf("var->ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
     | error L_SQUARE_BRACKET expression R_SQUARE_BRACKET
@@ -213,7 +209,7 @@ vars: var
      
    ;
 expression: multiplicative_expression  
-	  {printf("expression->multiplicative_expression\n");}
+	  {$$.identVal = $1.identVal;}
          | multiplicative_expression PLUS multiplicative_expression
           {printf("expression->multiplicative_expression PLUS multiplicative_expression\n");} 
          | multiplicative_expression MINUS multiplicative_expression
@@ -228,11 +224,11 @@ expression: multiplicative_expression
 	  {printf("Syntax error: Missing second term for subtraction at line %d\n", currLine);}
          ;
 expressions: expression
-	   {printf("expressions->expression\n");}
+	   {$$.identVal = $1.identVal;}
          ;
 
 multiplicative_expression: term 
-			 {printf("multiplicative_expression->terms\n");} 
+			 {$$.identVal = $1.identVal;} 
                         | term MULT term
                          {printf("multiplicative_expression->term MULT term\n");}
                         | term DIV term 
@@ -265,7 +261,11 @@ term: ident L_PAREN expressions R_PAREN
     | var 
     {printf("term->Var\n");}
     | NUMBER 
-    {printf("term->NUMBER\n");}
+       /* {$$.identVal = $1.iVal;} */ 
+     /* {itoa($1.iVal, $$.identVal, 10);} */
+     /*   {$$.identVal = atoa($1.iVal);}  */
+     /*     {$$.identVal = (char *)$1.iVal;} */
+        {sprintf($$.identVal, "%d", $1.iVal);}
     | L_PAREN expressions R_PAREN
     {printf("term->L_PAREN expressions R_PAREN\n");}
     | MINUS var
@@ -298,6 +298,6 @@ int main(int argc, char ** argv)
 
 }
 
-void yyerror(const char *msg){
+ void yyerror(const char *msg){
    printf("Error in line %d, position %d: %s\n", currLine, currPos, msg);
 }

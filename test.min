@@ -1,0 +1,11 @@
+function main; 
+beginparams
+endparams
+beginlocals 
+x : integer;
+endlocals
+beginbody
+x := 7;
+write x;
+endbody
+ 

@@ -96,7 +96,10 @@ extern int yydebug;
     ASSIGN = 306,
     IDENT = 307,
     NUMBER = 308,
-    UMINUS = 309
+    ADD = 309,
+    SUB = 310,
+    MUlT = 311,
+    UMINUS = 312
   };
 #endif
 
@@ -107,10 +110,19 @@ union YYSTYPE
 {
 #line 13 "calc.y" /* yacc.c:1909  */
 
-   char * identval;
-   int iVal;
+   struct _string
+   {
+     char * identVal;
+   } string;
+   
+   struct _number
+   {
+     int iVal;
+   } number;   
+   
+   
 
-#line 114 "parser.tab.h" /* yacc.c:1909  */
+#line 126 "parser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
