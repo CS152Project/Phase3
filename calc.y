@@ -1,13 +1,14 @@
 %{
+#define YY_NO_UNPUT
 #include <stdio.h>
 #include <stdlib.h>
-#include "string.h"
-
+#include <string>
+#include <iostream>
 void yyerror(const char *msg);
 extern FILE * yyin;
 extern int currLine;
 extern int currPos;
-int yylex();
+int yylex(void); 
 %}
 
 %union {   
@@ -118,7 +119,7 @@ statement: var ASSIGN expressions
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf(".> %s\n", $2.name);} 
+         {printf(".> %s\n", $2.name); std::string name = "bob";} 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
@@ -178,11 +179,11 @@ comp: EQ
 var: IDENT  
     {$$.name = $1.name;} 
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
-    {}  
+    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str();}  
     | error L_SQUARE_BRACKET expression R_SQUARE_BRACKET
     {printf("syntax error: missing identifier in line %d\n", currLine);}
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-    {printf("var->ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");} 
+    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $6.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str();} 
     | IDENT L_SQUARE_BRACKET error R_SQUARE_BRACKET
     {printf("syntax error: missing expression in line %d\n", currLine);} 
     | IDENT L_SQUARE_BRACKET error R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET
@@ -204,7 +205,7 @@ vars: var
 expression: multiplicative_expression  
 	  {$$.val = $1.val;} 
          | multiplicative_expression PLUS multiplicative_expression
-          {} 
+          { } 
          | multiplicative_expression MINUS multiplicative_expression
           {printf("expression->multiplicative_expression MINUS multiplicative_expression\n");}
 	 | error PLUS multiplicative_expression

@@ -1,6 +1,8 @@
+%option noyywrap
 %{
-#include "parser.tab.h"
-#include <stdlib.h> 
+#include <stdlib.h>
+#include <string>
+#include "parser.tab.h" 
    int currLine = 1, currPos = 1;
    int numNumbers = 0;
    int numOperators = 0;

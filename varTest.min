@@ -3,11 +3,13 @@ beginparams
 endparams
 beginlocals 
 x : integer;
+a : array[1000] of integer;  
 endlocals
 beginbody
+a[0] := 4;
+a[0][0] := 5;
 x := 7;
-read x;
-x[1000]; 
+read x; 
 write x;
 endbody
  
