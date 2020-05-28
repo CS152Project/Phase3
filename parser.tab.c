@@ -1638,7 +1638,7 @@ yyreduce:
 
   case 33:
 #line 134 "calc.y" /* yacc.c:1646  */
-    {printf(".> %s\n", (yyvsp[0].type_id).name); std::string name = "bob";}
+    {printf(".> %s\n", (yyvsp[0].type_id).name); std::string name = "bobby";}
 #line 1643 "parser.tab.c" /* yacc.c:1646  */
     break;
 

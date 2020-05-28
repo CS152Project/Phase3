@@ -131,7 +131,7 @@ statement: var ASSIGN expressions
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf(".> %s\n", $2.name); std::string name = "bob";} 
+         {printf(".> %s\n", $2.name); std::string name = "bobby";} 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
