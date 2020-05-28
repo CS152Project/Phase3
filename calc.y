@@ -84,7 +84,7 @@ declarations: /*empty*/
            {printf("syntax error: Missing declarations at line %d\n", currLine);}
 	;
 declaration: ident COLON INTEGER
-           {std::string code = ""; code += $1.name; code += ":"; code += " integer "; std::cout << code << std::endl; $$.name = (char*)code.c_str();}
+           {std::string x; x = $1.name; std::string code = ""; code += ". "; code += x; code += "\n"; std::cout << code << std::endl;}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
@@ -100,7 +100,8 @@ declaration: ident COLON INTEGER
 ident: IDENT 
 	   {$$.name = $1.name;}
           | IDENT COMMA ident   
-	  {std::string code = ""; code += $3.name; code += " ident "; code += " , "; std::cout << code << std::endl; $$.name = (char*)code.c_str();}
+	  {std::string *code = new std::string(); code->append($1.name); code->append("\n"); code->append(". "); code->append($3.name); code->append("\n"); 
+           $$.name = (char*)code->c_str();}
          ;
 statements: statement SEMICOLON
 	  {printf("statements->statement SEMICOLON\n");}
@@ -134,7 +135,7 @@ statement: var ASSIGN expressions
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
-         {printf("statement->CONTINUE\n");}
+         {printf(". continue\n");}
          | RETURN expressions
          {printf("statement->RETURN expressions\n");} 
          ;
@@ -172,7 +173,7 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {printf("comp->EQ\n");}
+    {/*std:code = ""; code += "=="; std:string temp "=="; std::cout << code << std::endl;*/}
      | NEQ 
     {printf("comp->NEQ\n");}
      | LT
