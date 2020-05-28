@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap 
 %{
 #include <stdlib.h>
 #include <string>
@@ -17,6 +17,8 @@
    int numEquals = 0;
    int numAssignSymbols = 0;
    int numComments = 0;
+   char* progName;
+
 %}
 
 DIGIT    [0-9]
@@ -89,6 +91,8 @@ NewLine  [\n]
 {LETTER}({LETTER}|{DIGIT}|"_")*"_"              {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", currLine, currPos, yytext); exit(1);}
 
 ({DIGIT}|"_")({LETTER}|{DIGIT}|"_")*               {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); exit(2);}
+
+
 
 
 %%

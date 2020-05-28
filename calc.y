@@ -1,23 +1,34 @@
 %{
-#define YY_NO_UNPUT
+/* #define YY_NO_UNPUT */ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <map>
+#include <vector>
 void yyerror(const char *msg);
 extern FILE * yyin;
 extern int currLine;
 extern int currPos;
-int yylex(void); 
+int yylex(void);
+   
+std::string newTemp() 
+{
+   static int num = 0;
+   std::string temp = "__temp__" + std::to_string(num++);
+   return temp;
+}
 %}
 
 %union {   
+  
   struct _typeId
     {
       char *name;
       int val;
     } type_id;  
 }
+
 %error-verbose
 %start program
 %token FUNCTION SEMICOLON COMMA COLON READ WRITE
@@ -35,11 +46,11 @@ int yylex(void);
 %left EQ NEQ LT GTE LTE 
 %left ADD SUB
 %left MUlT DIV PER
-%right UMINUS
+%right UMINUS  
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> statements expression expressions multiplicative_expression statement term var vars    
+%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration     
 
 %%
 
@@ -73,11 +84,11 @@ declarations: /*empty*/
            {printf("syntax error: Missing declarations at line %d\n", currLine);}
 	;
 declaration: ident COLON INTEGER
-           {printf("declaration->identifiers SEMICOLON INTEGER\n");}
-        | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
-	  {printf("declaration->identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");}
+           {std::string code = ""; code += $1.name; code += ":"; code += " integer "; std::cout << code << std::endl; $$.name = (char*)code.c_str();}
+        | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	  {printf("declaration->identifiers SEMICOLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");}
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | error COLON INTEGER
           {printf("syntax error: missing identifier at line %d\n", currLine);}
         | ident error INTEGER 
@@ -87,9 +98,9 @@ declaration: ident COLON INTEGER
         ;
 
 ident: IDENT 
-	   {printf("ident->IDENT\n");}
+	   {$$.name = $1.name;}
           | IDENT COMMA ident   
-	  {printf("ident->IDENT COMMA ident\n");}
+	  {std::string code = ""; code += $3.name; code += " ident "; code += " , "; std::cout << code << std::endl; $$.name = (char*)code.c_str();}
          ;
 statements: statement SEMICOLON
 	  {printf("statements->statement SEMICOLON\n");}
@@ -103,7 +114,7 @@ statements: statement SEMICOLON
           {printf("syntax error: missing SEMICOLON at line %d\n", currLine);} 
          
 statement: var ASSIGN expressions
-	   {printf("= %s, %d\n", $1.name, $3.val);}  
+	   {printf("= %s, %s\n", $1.name, $3.name);}  
          | IF bool_expression THEN statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
          | IF bool_expression THEN statements ELSE statements ENDIF
@@ -204,9 +215,48 @@ vars: var
    ;
 expression: multiplicative_expression  
 	  {$$.val = $1.val;} 
-         | multiplicative_expression PLUS multiplicative_expression
-          { } 
-         | multiplicative_expression MINUS multiplicative_expression
+         | multiplicative_expression PLUS expression 
+           {
+	   /*  $$.name = (char *)(newTemp().c_str());  */
+                 std::string temp;            
+                 std::string code;		 
+                 std::string temp_str;
+                 char ch [1024];
+                 sprintf(ch, "%d", $1.val);
+                 code += ch; 
+               /*  temp.append(ch);   
+                 temp += $1.val;
+                 temp += $3.val;
+                 temp += newTemp(); 
+                 temp += "+ ";
+                 temp += newTemp();
+                 temp += ", "; */
+             /*    temp += newTemp();
+                 temp += ", ";
+                 temp += newTemp();
+                 temp += ", ";
+                 temp += newTemp(); */
+                 temp += "\n";
+            /*  $$.val = atol(temp.c_str()); */ 
+           } 
+         /* {if($1.name == NULL)
+            {
+              char ch [1024];
+              sprintf(ch, "+ %d", $1.val);
+              std::cout << ch << std::endl;
+              if($3.name != NULL)
+              {
+                char ch [1024];
+                sprintf(ch, ","); 
+              } 
+            }
+           else 
+            {
+              printf("+ %s\n", $1.name);
+            }
+          }
+         */ 
+         | multiplicative_expression MINUS expression
           {printf("expression->multiplicative_expression MINUS multiplicative_expression\n");}
 	 | error PLUS multiplicative_expression
 	  {printf("Syntax error: Missing first term for addition at line %d\n", currLine);}
@@ -251,13 +301,13 @@ multiplicative_expression: term
 
 
 term: ident L_PAREN expressions R_PAREN 
-    {printf("term->identifier L_PAREN expressions R_PAREN\n");}
+     {}
     | var 
-    {printf("term->Var\n");}
+    {$$.name = $1.name;}
     | NUMBER 
-    {$$.val = $1.val;}
+      {$$.val = $1.val;} 
     | L_PAREN expressions R_PAREN
-    {printf("term->L_PAREN expressions R_PAREN\n");}
+    {}
     | MINUS var
     {printf("term->MINUS var\n");}
     | MINUS NUMBER 
@@ -288,6 +338,8 @@ int main(int argc, char ** argv)
 
 }
 
+
  void yyerror(const char *msg){
    printf("Error in line %d, position %d: %s\n", currLine, currPos, msg);
-}
+};
+   

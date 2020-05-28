@@ -99,8 +99,8 @@ Grammar
    67     | var COMMA error
 
    68 expression: multiplicative_expression
-   69           | multiplicative_expression PLUS multiplicative_expression
-   70           | multiplicative_expression MINUS multiplicative_expression
+   69           | multiplicative_expression PLUS expression
+   70           | multiplicative_expression MINUS expression
    71           | error PLUS multiplicative_expression
    72           | multiplicative_expression PLUS error
    73           | error PLUS error
@@ -227,7 +227,7 @@ var (71)
 vars (72)
     on left: 64 65 66 67, on right: 29 30 32 65 66
 expression (73)
-    on left: 68 69 70 71 72 73 74, on right: 58 59 60 62 63 75
+    on left: 68 69 70 71 72 73 74, on right: 58 59 60 62 63 69 70 75
 expressions (74)
     on left: 75, on right: 24 29 35 40 44 89 92 95
 multiplicative_expression (75)
@@ -1100,8 +1100,8 @@ State 79
 State 80
 
    68 expression: multiplicative_expression .
-   69           | multiplicative_expression . PLUS multiplicative_expression
-   70           | multiplicative_expression . MINUS multiplicative_expression
+   69           | multiplicative_expression . PLUS expression
+   70           | multiplicative_expression . MINUS expression
    72           | multiplicative_expression . PLUS error
    74           | multiplicative_expression . MINUS error
 
@@ -1688,7 +1688,7 @@ State 124
 
 State 125
 
-   69 expression: multiplicative_expression PLUS . multiplicative_expression
+   69 expression: multiplicative_expression PLUS . expression
    72           | multiplicative_expression PLUS . error
 
     error    shift, and go to state 165
@@ -1699,13 +1699,14 @@ State 125
 
     ident                      go to state 73
     var                        go to state 77
-    multiplicative_expression  go to state 166
+    expression                 go to state 166
+    multiplicative_expression  go to state 80
     term                       go to state 81
 
 
 State 126
 
-   70 expression: multiplicative_expression MINUS . multiplicative_expression
+   70 expression: multiplicative_expression MINUS . expression
    74           | multiplicative_expression MINUS . error
 
     error    shift, and go to state 167
@@ -1716,7 +1717,8 @@ State 126
 
     ident                      go to state 73
     var                        go to state 77
-    multiplicative_expression  go to state 168
+    expression                 go to state 168
+    multiplicative_expression  go to state 80
     term                       go to state 81
 
 
@@ -2104,7 +2106,9 @@ State 164
 State 165
 
    59 var: error . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-   72 expression: multiplicative_expression PLUS error .
+   71 expression: error . PLUS multiplicative_expression
+   72           | multiplicative_expression PLUS error .
+   73           | error . PLUS error
    80 multiplicative_expression: error . MULT term
    82                          | error . DIV term
    84                          | error . PER term
@@ -2114,6 +2118,7 @@ State 165
 
     MULT              shift, and go to state 98
     DIV               shift, and go to state 99
+    PLUS              shift, and go to state 100
     PER               shift, and go to state 101
     L_SQUARE_BRACKET  shift, and go to state 57
 
@@ -2122,7 +2127,7 @@ State 165
 
 State 166
 
-   69 expression: multiplicative_expression PLUS multiplicative_expression .
+   69 expression: multiplicative_expression PLUS expression .
 
     $default  reduce using rule 69 (expression)
 
@@ -2130,7 +2135,9 @@ State 166
 State 167
 
    59 var: error . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-   74 expression: multiplicative_expression MINUS error .
+   71 expression: error . PLUS multiplicative_expression
+   73           | error . PLUS error
+   74           | multiplicative_expression MINUS error .
    80 multiplicative_expression: error . MULT term
    82                          | error . DIV term
    84                          | error . PER term
@@ -2140,6 +2147,7 @@ State 167
 
     MULT              shift, and go to state 98
     DIV               shift, and go to state 99
+    PLUS              shift, and go to state 100
     PER               shift, and go to state 101
     L_SQUARE_BRACKET  shift, and go to state 57
 
@@ -2148,7 +2156,7 @@ State 167
 
 State 168
 
-   70 expression: multiplicative_expression MINUS multiplicative_expression .
+   70 expression: multiplicative_expression MINUS expression .
 
     $default  reduce using rule 70 (expression)
 
