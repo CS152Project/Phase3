@@ -36,9 +36,9 @@ std::string newTemp()
 %token L_SQUARE_BRACKET R_SQUARE_BRACKET L_PAREN R_PAREN 
 %token BEGIN_PARAMS END_PARAMS BEGINLOOP ENDLOOP BEGIN_LOCALS END_LOCALS 
 %token BEGIN_BODY END_BODY INTEGER ARRAY OF ENDIF ELSE IF THEN WHILE DO  
-%token EQ NEQ LT GT GTE LTE AND OR NOT TRUE FALSE RETURN ASSIGN    
-%token <type_id> IDENT
-%token <type_id> NUMBER
+%token EQ NEQ LT GT GTE LTE AND OR NOT RETURN ASSIGN    
+%token <type_id> IDENT TRUE FALSE
+%token <type_id> NUMBER 
 %right ASSIGN
 %left OR
 %left AND
@@ -50,7 +50,7 @@ std::string newTemp()
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration     
+%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT    
 
 %%
 
@@ -99,12 +99,12 @@ declaration: ident COLON INTEGER
 
 ident: IDENT 
 	   {$$.name = $1.name;}
-          | IDENT COMMA ident   
+          | IDENT COMMA ident  
 	  {std::string *code = new std::string(); code->append($1.name); code->append("\n"); code->append(". "); code->append($3.name); code->append("\n"); 
            $$.name = (char*)code->c_str();}
          ;
-statements: statement SEMICOLON
-	  {printf("statements->statement SEMICOLON\n");}
+statements: /*empty*/ 
+	  {} 
          | statement SEMICOLON statements
           {printf("statement->statement SEMICOLON statements\n");}
          | statement SEMICOLON error  
@@ -153,7 +153,7 @@ relation_and_expression: relation_expression
 relation_expression: NOT expressions comp expressions
 		  {printf("relation_expression->NOT expressions comp expressions\n");}
                  | NOT TRUE 
-                 {printf("relation_expression->NOT TRUE\n");}
+                 { }
                  | NOT FALSE
                  {printf("relation_expression->NOT FALSE\n");}
                  | NOT L_PAREN bool_expression R_PAREN
@@ -161,7 +161,7 @@ relation_expression: NOT expressions comp expressions
                  | expressions comp expressions 
                  {printf("relation_expression->expressions comp expressions\n");}
                  | TRUE 
-                 {printf("relation_expression->TRUE\n");}
+                 { }
                  | FALSE
                  {printf("relation_expression->FALSE\n");}
                  | L_PAREN bool_expression R_PAREN
@@ -173,17 +173,17 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {/*std:code = ""; code += "=="; std:string temp "=="; std::cout << code << std::endl;*/}
+    {$$.name = "== ";}
      | NEQ 
-    {printf("comp->NEQ\n");}
+    {$$.name = "!= ";}
      | LT
-    {printf("comp->LT\n");}
+    {$$.name = "< ";}
      | GT
-    {printf("comp->GT\n");}
+    {$$.name = "> ";}
      | GTE
-    {printf("comp->GTE\n");}
+    {$$.name = ">=";}
      | LTE
-    {printf("comp->LTE\n");}
+    {$$.name = "<=";}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
@@ -275,7 +275,7 @@ expressions: expression
 multiplicative_expression: term 
 			 {$$.val = $1.val;}  
                         | term MULT term
-                         {printf("multiplicative_expression->term MULT term\n");}
+                         {}
                         | term DIV term 
                          {printf("multiplicative_expression->term DIV term\n");}
                         | term PER term
@@ -302,19 +302,19 @@ multiplicative_expression: term
 
 
 term: ident L_PAREN expressions R_PAREN 
-     {}
+     {std::string code = ""; code += $1.name; code += ("("); char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += (") "); $$.name = (char *)(code.c_str());}
     | var 
     {$$.name = $1.name;}
     | NUMBER 
       {$$.val = $1.val;} 
     | L_PAREN expressions R_PAREN
-    {}
+    {std::string code = ""; code += "("; char ch [1024]; sprintf(ch, "%d", $2.val); code += ch; code += ") "; $$.name = (char *)code.c_str();}
     | MINUS var
     {printf("term->MINUS var\n");}
     | MINUS NUMBER 
-    {}
+    {std::string code = ""; code += "-"; char ch [1024]; sprintf(ch, "%d", $2.val); code += ch; $$.name = (char *)code.c_str();}
     | MINUS L_PAREN expressions R_PAREN
-    {printf("term->MINUS L_PAREN expressions R_PAREN\n");}
+    {std::string code = ""; code += "-"; code += "("; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += ") "; $$.name = (char *)code.c_str();}
     ;
 
 %%

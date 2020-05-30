@@ -1,0 +1,11 @@
+function main;
+beginparams
+a : integer;
+b : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+##if a[i] == 0;
+b[i] == 1;
+endbody
