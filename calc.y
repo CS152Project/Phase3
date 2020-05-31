@@ -12,10 +12,10 @@ extern int currLine;
 extern int currPos;
 int yylex(void);
 
-std::string newTemp();
-std::string newLabe();
+std::string Temp();
+std::string newLabel();
  
-std::string newTemp() 
+std::string Temp() 
 {
    static int num = 0;
    std::string temp = "__temp__" + std::to_string(num++);
@@ -118,7 +118,7 @@ statements: /*empty*/
           {printf("syntax error: missing SEMICOLON at line %d\n", currLine);} 
          
 statement: var ASSIGN expressions
-	   {printf("%s, %s\n", $1.name, $3.name);}  
+	   {printf("= %s, %s\n", $1.name, $3.name);}  
          | IF bool_expression THEN statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
          | IF bool_expression THEN statements ELSE statements ENDIF
@@ -220,48 +220,10 @@ vars: var
 expression: multiplicative_expression  
 	  {$$.val = $1.val;} 
          | multiplicative_expression PLUS expression 
-           {
-	    /* $$.name = (char *)(newTemp().c_str());  
-                 std::string temp;            
-                 std::string code;		 
-                 std::string temp_str;
-                 char ch [1024];
-                 sprintf(ch, "%d", $1.val);
-                 code += ch; 
-                 temp += ch;   
-                 temp += $1.val;
-                 temp += $3.val;
-                 temp += newTemp(); 
-                 temp += "+ ";
-                 temp += newTemp();
-                 temp += ", "; 
-                 temp += newTemp();
-                 temp += ", ";
-                 temp += newTemp();
-                 temp += ", ";
-                 temp += newTemp(); 
-                 temp += "\n";
-             $$.val = atol(temp.c_str()); 
-           }*/ 
-         /* {if($1.name == NULL)
-            {
-              char ch [1024];
-              sprintf(ch, "+ %d", $1.val);
-              std::cout << ch << std::endl;
-              if($3.name != NULL)
-              {
-                char ch [1024];
-                sprintf(ch, ","); 
-              } 
-            }
-           else 
-            {
-              printf("+ %s\n", $1.name);
-            }*/
-          }
+           {std::string code = ""; std::string tmp = Temp(); code += "+ "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
           
          | multiplicative_expression MINUS expression
-          {printf("expression->multiplicative_expression MINUS multiplicative_expression\n");}
+          {std::string code = ""; std::string tmp = Temp(); code += "- "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
 	 | error PLUS multiplicative_expression
 	  {printf("Syntax error: Missing first term for addition at line %d\n", currLine);}
 	 | multiplicative_expression PLUS error
@@ -278,20 +240,15 @@ expressions: expression
 multiplicative_expression: term 
 			 {$$.val = $1.val;}  
                         | term MULT term 
-                         {  std::string code = ""; code += "* "; code += ", "; code += $1.name; code += ", "; code += $3.name; $$.name = (char *)(code.c_str()); 
-                          /*std::string *code = new std::string(); code->append("*"); code->append($1.name); code->append(", "); code->append($3.name); $$.name = (char *)(code->c_str());*/            
-                           /* std::string code = ""; 
-                            if($1.name && $3.name != NULL)
-                            
-			       printf("%s", $$.name);
-                               printf("*, %s", $1.name);
-                               printf(", %s", $3.name);
-                           */
+                         { std::string code = ""; std::string tmp = Temp(); code += "* "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
+                          /*std::string *code = new std::string(); code->append("*"); code->append($1.name); code->append(", "); code->append($3.name); */
                          } 
                         | term DIV term 
-                         {printf("multiplicative_expression->term DIV term\n");}
+                         { std::string code = ""; std::string tmp = Temp(); code += "/ "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
+                         /*std::string *code = new std::string(); std::string tmp = Temp(); code->append("*"); code->append(tmp); code->(", "); code->append($3.name); std::cout << code << std::endl; $$.name = (char *)tmp->c_str();*/
+                         }
                         | term PER term
-                         {printf("multiplicative_expression->term PER term\n");}
+                         {std::string code = ""; std::string tmp = Temp(); code += "% "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
 			| error MULT term
 			{printf("Syntax error: Missing first term for multiplication at line %d\n", currLine);}
 			| term MULT error
