@@ -11,7 +11,10 @@ extern FILE * yyin;
 extern int currLine;
 extern int currPos;
 int yylex(void);
-   
+
+std::string newTemp();
+std::string newLabe();
+ 
 std::string newTemp() 
 {
    static int num = 0;
@@ -115,7 +118,7 @@ statements: /*empty*/
           {printf("syntax error: missing SEMICOLON at line %d\n", currLine);} 
          
 statement: var ASSIGN expressions
-	   {printf("= %s, %s\n", $1.name, $3.name);}  
+	   {printf("%s, %s\n", $1.name, $3.name);}  
          | IF bool_expression THEN statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
          | IF bool_expression THEN statements ELSE statements ENDIF
@@ -173,17 +176,17 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {$$.name = "== ";}
+    {$$.name = (char *)("==");} 
      | NEQ 
-    {$$.name = "!= ";}
+    {$$.name = (char *)("!=");}
      | LT
-    {$$.name = "< ";}
+    {$$.name = (char *)("<");}
      | GT
-    {$$.name = "> ";}
+    {$$.name = (char *)(">");}
      | GTE
-    {$$.name = ">=";}
+    {$$.name = (char *)(">=");}
      | LTE
-    {$$.name = "<=";}
+    {$$.name = (char *)("<=");}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
@@ -218,28 +221,28 @@ expression: multiplicative_expression
 	  {$$.val = $1.val;} 
          | multiplicative_expression PLUS expression 
            {
-	   /*  $$.name = (char *)(newTemp().c_str());  */
+	    /* $$.name = (char *)(newTemp().c_str());  
                  std::string temp;            
                  std::string code;		 
                  std::string temp_str;
                  char ch [1024];
                  sprintf(ch, "%d", $1.val);
                  code += ch; 
-               /*  temp.append(ch);   
+                 temp += ch;   
                  temp += $1.val;
                  temp += $3.val;
                  temp += newTemp(); 
                  temp += "+ ";
                  temp += newTemp();
-                 temp += ", "; */
-             /*    temp += newTemp();
+                 temp += ", "; 
+                 temp += newTemp();
                  temp += ", ";
                  temp += newTemp();
                  temp += ", ";
-                 temp += newTemp(); */
+                 temp += newTemp(); 
                  temp += "\n";
-            /*  $$.val = atol(temp.c_str()); */ 
-           } 
+             $$.val = atol(temp.c_str()); 
+           }*/ 
          /* {if($1.name == NULL)
             {
               char ch [1024];
@@ -254,9 +257,9 @@ expression: multiplicative_expression
            else 
             {
               printf("+ %s\n", $1.name);
-            }
+            }*/
           }
-         */ 
+          
          | multiplicative_expression MINUS expression
           {printf("expression->multiplicative_expression MINUS multiplicative_expression\n");}
 	 | error PLUS multiplicative_expression
@@ -274,8 +277,17 @@ expressions: expression
 
 multiplicative_expression: term 
 			 {$$.val = $1.val;}  
-                        | term MULT term
-                         {}
+                        | term MULT term 
+                         {  std::string code = ""; code += "* "; code += ", "; code += $1.name; code += ", "; code += $3.name; $$.name = (char *)(code.c_str()); 
+                          /*std::string *code = new std::string(); code->append("*"); code->append($1.name); code->append(", "); code->append($3.name); $$.name = (char *)(code->c_str());*/            
+                           /* std::string code = ""; 
+                            if($1.name && $3.name != NULL)
+                            
+			       printf("%s", $$.name);
+                               printf("*, %s", $1.name);
+                               printf(", %s", $3.name);
+                           */
+                         } 
                         | term DIV term 
                          {printf("multiplicative_expression->term DIV term\n");}
                         | term PER term
