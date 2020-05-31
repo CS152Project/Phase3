@@ -240,11 +240,19 @@ expressions: expression
 multiplicative_expression: term 
 			 {$$.val = $1.val;}  
                         | term MULT term 
-                         { std::string code = ""; std::string tmp = Temp(); code += "* "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
+                         {if($1.name && $3.name != NULL)
+                           {std::string code = ""; std::string tmp = Temp(); code += "* "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
+                           }
+                         /* else if ($1.val && $3.val == NULL)
+                           {
+                           std::string code = ""; std::string tmp = Temp(); code += "* "; code += tmp; code += ", "; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += ", "; sprintf(ch, "%d", $3.val); code += ch; std::cout<< code << std::endl; $$.name = (char *)(tmp.c_str()); 
+                           }
+                        */
+
                           /*std::string *code = new std::string(); code->append("*"); code->append($1.name); code->append(", "); code->append($3.name); */
                          } 
                         | term DIV term 
-                         { std::string code = ""; std::string tmp = Temp(); code += "/ "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
+                         {std::string code = ""; std::string tmp = Temp(); code += "/ "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str(); 
                          /*std::string *code = new std::string(); std::string tmp = Temp(); code->append("*"); code->append(tmp); code->(", "); code->append($3.name); std::cout << code << std::endl; $$.name = (char *)tmp->c_str();*/
                          }
                         | term PER term
