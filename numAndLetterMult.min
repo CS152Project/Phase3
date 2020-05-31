@@ -2,10 +2,9 @@ function main;
 beginparams
 endparams
 beginlocals 
-x : integer;
+z : integer;
 endlocals
 beginbody
-x := 5 * 4;
-y := 2 * 2;
+z := a * 7;
 endbody
-
+ 
