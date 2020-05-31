@@ -1,11 +1,10 @@
-function main; 
+function main;
 beginparams
 endparams
 beginlocals 
 z : integer;
 endlocals
 beginbody
-z := a * 7;
-b := 4 * c;
+a := b + c;
 endbody
  

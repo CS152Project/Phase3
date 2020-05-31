@@ -220,7 +220,21 @@ vars: var
 expression: multiplicative_expression  
 	  {$$.val = $1.val;} 
          | multiplicative_expression PLUS expression 
-           {std::string code = ""; std::string tmp = Temp(); code += "+ "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
+           {if($1.name != NULL && $3.name != NULL)
+              { 
+	        std::string *code = new std::string;
+	        std::string *tmp = new std::string;
+	        tmp->append(Temp());
+	        code->append("+");
+	        code->append(*tmp);
+	        code->append(", ");
+   	        code->append($1.name);
+	        code->append(", ");
+	        code->append($3.name);
+	        std::cout << *code << std::endl;
+	        $$.name = (char *)(tmp->c_str());
+	      }
+           }
           
          | multiplicative_expression MINUS expression
           {std::string code = ""; std::string tmp = Temp(); code += "- "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
@@ -241,8 +255,7 @@ multiplicative_expression: term
 			 {$$.val = $1.val;}  
                         | term MULT multiplicative_expression 
                            {if($1.name != NULL && $3.name != NULL)
-                            { 
-                               
+                           { 
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
 			     tmp->append(Temp());
@@ -253,12 +266,10 @@ multiplicative_expression: term
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
-		             $$.name = (char *)(tmp->c_str()); 
-                               
-                            }
-                            else if($1.name != NULL && $3.val != NULL)
-                            { 
-                               
+		             $$.name = (char *)(tmp->c_str());
+			   }
+			   else if($1.name != NULL && isdigit($3.val))
+                            {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
 			     tmp->append(Temp());
@@ -267,14 +278,11 @@ multiplicative_expression: term
 			     code->append(", ");
    			     code->append($1.name);
 			     code->append(", ");
-			    // code->append($3.val);
-                             char ch[1024];
-                             sprintf(ch, "%d", $3.val);
-			     code->append(ch);
+			     code->append(std::to_string($3.val));
 			     std::cout << *code << std::endl;
-		             $$.val = tmp->c_str();  
-                            }    
-                            else if($1.val != NULL && $3.name != NULL)
+		            // $$.val = (const char *)(tmp->c_str());  
+                            }      
+                            else if(isdigit($1.val) && $3.name != NULL)
                             { 
 		               
 			     std::string *code = new std::string;
@@ -283,36 +291,65 @@ multiplicative_expression: term
 			     code->append("*");
 			     code->append(*tmp);
 			     code->append(", ");
-   			     code->append($1.name);
+   			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
 		             $$.name = (char *)(tmp->c_str()); 
                             }  
-                            else($1.val != NULL && $3.val != NULL)
-                              {    
+                            else
+                             {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
 			     tmp->append(Temp());
 			     code->append("*");
 			     code->append(*tmp);
 			     code->append(", ");
-   			     code->append($1.name);
+                             char ch[1024];
+			     sprintf(ch, "%d", $1.val);
+			     code->append(ch);
+   			   //  code->append($1.val);
 			     code->append(", ");
 			    // code->append($3.val);
-                             char ch[1024];
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
-		            // $$.val = tmp->c_str(); 
-                         }
-		        }
+			  //   std::cout << *code << std::endl;
+		          //   $$.name = (char *)tmp->c_str(); 
+                             }
+			   }
                         | term DIV multiplicative_expression 
                          { 
-
+		          if($1.name != NULL && $3.name != NULL)
+                           { 
+			     std::string *code = new std::string;
+			     std::string *tmp = new std::string;
+			     tmp->append(Temp());
+			     code->append("/");
+			     code->append(*tmp);
+			     code->append(", ");
+   			     code->append($1.name);
+			     code->append(", ");
+			     code->append($3.name);
+			     std::cout << *code << std::endl;
+		             $$.name = (char *)(tmp->c_str());  
+			   }
                          }
                         | term PER multiplicative_expression
-                         {std::string code = ""; std::string tmp = Temp(); code += "% "; code += tmp; code += ", "; code += $1.name; code += ", "; code += $3.name; std::cout << code << std::endl; $$.name = (char *)tmp.c_str();}
+                         {if($1.name != NULL && $3.name != NULL)
+                           { 
+			     std::string *code = new std::string;
+			     std::string *tmp = new std::string;
+			     tmp->append(Temp());
+			     code->append("%");
+			     code->append(*tmp);
+			     code->append(", ");
+   			     code->append($1.name);
+			     code->append(", ");
+			     code->append($3.name);
+			     std::cout << *code << std::endl;
+		             $$.name = (char *)(tmp->c_str());
+			   }
+			}
 			| error MULT term
 			{printf("Syntax error: Missing first term for multiplication at line %d\n", currLine);}
 			| term MULT error
