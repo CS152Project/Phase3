@@ -235,7 +235,6 @@ expression: multiplicative_expression
 	         tmp->append(Temp());
                	 code->append("+");
 	         code->append(*tmp);
-                           //std::cout << "s" << std::endl;
 	         code->append(", ");
    	         code->append($1.name);
 	         code->append(", ");
@@ -290,27 +289,78 @@ expression: multiplicative_expression
 	         code->append(", ");
                  sprintf(ch, "%d", $3.val);
 	         code->append(ch);
-	        std::cout << *code << std::endl;
-	        $$.name = (char *)tmp->c_str();
-                $$.datatype = 1; 
+	         std::cout << *code << std::endl;
+	         $$.name = (char *)tmp->c_str();
+                 $$.datatype = 1; 
             }
          } 
          | multiplicative_expression MINUS expression
-          {if($1.name != NULL && $3.name != NULL)
-             { 
-	        std::string *code = new std::string;
-	        std::string *tmp = new std::string;
-	        tmp->append(Temp());
-	        code->append("-");
-	        code->append(*tmp);
-	        code->append(", ");
-   	        code->append($1.name);
-	        code->append(", ");
-	        code->append($3.name);
-	        std::cout << *code << std::endl;
-	        $$.name = (char *)(tmp->c_str());
-	    }
-         }
+           {if($1.datatype == 1 && $3.datatype == 1)
+              { 
+       	         std::string *code = new std::string;
+         	 std::string *tmp = new std::string;
+	         tmp->append(Temp());
+               	 code->append("-");
+	         code->append(*tmp);
+	         code->append(", ");
+   	         code->append($1.name);
+	         code->append(", ");
+		 code->append($3.name);
+	         std::cout << *code << std::endl;
+		 $$.name = (char *)(tmp->c_str());
+                 $$.datatype = 1;
+             }
+	   else if($1.datatype == 1 && $3.datatype == 0)
+             {
+                 std::string *code = new std::string;
+	         std::string *tmp = new std::string;
+	         tmp->append(Temp());
+	         code->append("-");
+	         code->append(*tmp);
+	         code->append(", ");
+   	         code->append($1.name);
+	         code->append(", ");
+                 char ch[1024];
+	         sprintf(ch, "%d", $3.val);
+		 code->append(ch);
+	         std::cout << *code << std::endl;
+		 $$.name = (char *)(tmp->c_str()); 
+	         $$.datatype = 1; 
+             }      
+           else if($1.datatype == 0 && $3.datatype == 1)
+             {           
+                 std::string *code = new std::string;
+	         std::string *tmp = new std::string;
+	         tmp->append(Temp());
+	         code->append("-");
+		 code->append(*tmp);
+	         code->append(", ");
+   		 code->append(std::to_string($1.val));
+		 code->append(", ");
+		 code->append($3.name);
+	         std::cout << *code << std::endl;
+		 $$.name = (char *)(tmp->c_str());
+	         $$.datatype = 1; 
+             }  
+	   else
+             {    
+	         std::string *code = new std::string;
+	         std::string *tmp = new std::string;
+	         tmp->append(Temp());
+	         code->append("-");
+	         code->append(*tmp);
+	         code->append(", ");
+                 char ch[1024];
+	         sprintf(ch, "%d", $1.val);
+	         code->append(ch);
+	         code->append(", ");
+                 sprintf(ch, "%d", $3.val);
+	         code->append(ch);
+	         std::cout << *code << std::endl;
+	         $$.name = (char *)tmp->c_str();
+                 $$.datatype = 1; 
+            }
+           }
 	 | error PLUS multiplicative_expression
 	  {printf("Syntax error: Missing first term for addition at line %d\n", currLine);}
 	 | multiplicative_expression PLUS error

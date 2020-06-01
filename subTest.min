@@ -5,9 +5,9 @@ beginlocals
 z : integer;
 endlocals
 beginbody
-z := a - b * c; 
-a := b - c;
-b := x - y;
-q := d - e;
+z := a - b; 
+a := 2 - 3;
+b := x - 6;
+q := 2 - e + 3 + v + x;
 endbody
  
