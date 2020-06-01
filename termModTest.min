@@ -6,5 +6,9 @@ x : integer;
 endlocals
 beginbody
 x := a % b;
+y := a % 7;
+z := 5 % 4;
+q := 6 % c;
+n := a % b % 3 % c % d;
 endbody
 

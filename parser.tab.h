@@ -115,9 +115,10 @@ union YYSTYPE
     {
       char *name;
       int val;
+      int datatype;
     } type_id;  
 
-#line 121 "parser.tab.h" /* yacc.c:1909  */
+#line 122 "parser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

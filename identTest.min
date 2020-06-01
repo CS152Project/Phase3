@@ -9,4 +9,5 @@ a, z, n, m : integer;
 endlocals
 beginbody
 x := 0;
+x := a;
 endbody
