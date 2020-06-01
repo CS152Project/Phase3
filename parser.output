@@ -109,9 +109,9 @@ Grammar
    75 expressions: expression
 
    76 multiplicative_expression: term
-   77                          | term MULT term
-   78                          | term DIV term
-   79                          | term PER term
+   77                          | term MULT multiplicative_expression
+   78                          | term DIV multiplicative_expression
+   79                          | term PER multiplicative_expression
    80                          | error MULT term
    81                          | term MULT error
    82                          | error DIV term
@@ -231,7 +231,7 @@ expressions (74)
     on left: 75, on right: 24 29 35 40 44 89 92 95
 multiplicative_expression (75)
     on left: 76 77 78 79 80 81 82 83 84 85 86 87 88, on right: 68 69
-    70 71 72 74
+    70 71 72 74 77 78 79
 term (76)
     on left: 89 90 91 92 93 94 95, on right: 76 77 78 79 80 81 82 83
     84 85
@@ -1119,9 +1119,9 @@ State 80
 State 81
 
    76 multiplicative_expression: term .
-   77                          | term . MULT term
-   78                          | term . DIV term
-   79                          | term . PER term
+   77                          | term . MULT multiplicative_expression
+   78                          | term . DIV multiplicative_expression
+   79                          | term . PER multiplicative_expression
    81                          | term . MULT error
    83                          | term . DIV error
    85                          | term . PER error
@@ -1738,7 +1738,7 @@ State 126
 
 State 127
 
-   77 multiplicative_expression: term MULT . term
+   77 multiplicative_expression: term MULT . multiplicative_expression
    81                          | term MULT . error
 
     error    shift, and go to state 169
@@ -1747,14 +1747,15 @@ State 127
     IDENT    shift, and go to state 69
     NUMBER   shift, and go to state 72
 
-    ident  go to state 73
-    var    go to state 77
-    term   go to state 170
+    ident                      go to state 73
+    var                        go to state 77
+    multiplicative_expression  go to state 170
+    term                       go to state 81
 
 
 State 128
 
-   78 multiplicative_expression: term DIV . term
+   78 multiplicative_expression: term DIV . multiplicative_expression
    83                          | term DIV . error
 
     error    shift, and go to state 171
@@ -1763,14 +1764,15 @@ State 128
     IDENT    shift, and go to state 69
     NUMBER   shift, and go to state 72
 
-    ident  go to state 73
-    var    go to state 77
-    term   go to state 172
+    ident                      go to state 73
+    var                        go to state 77
+    multiplicative_expression  go to state 172
+    term                       go to state 81
 
 
 State 129
 
-   79 multiplicative_expression: term PER . term
+   79 multiplicative_expression: term PER . multiplicative_expression
    85                          | term PER . error
 
     error    shift, and go to state 173
@@ -1779,9 +1781,10 @@ State 129
     IDENT    shift, and go to state 69
     NUMBER   shift, and go to state 72
 
-    ident  go to state 73
-    var    go to state 77
-    term   go to state 174
+    ident                      go to state 73
+    var                        go to state 77
+    multiplicative_expression  go to state 174
+    term                       go to state 81
 
 
 State 130
@@ -2180,8 +2183,17 @@ State 168
 State 169
 
    59 var: error . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-   81 multiplicative_expression: term MULT error .
+   80 multiplicative_expression: error . MULT term
+   81                          | term MULT error .
+   82                          | error . DIV term
+   84                          | error . PER term
+   86                          | error . MULT error
+   87                          | error . DIV error
+   88                          | error . PER error
 
+    MULT              shift, and go to state 98
+    DIV               shift, and go to state 99
+    PER               shift, and go to state 101
     L_SQUARE_BRACKET  shift, and go to state 57
 
     $default  reduce using rule 81 (multiplicative_expression)
@@ -2189,7 +2201,7 @@ State 169
 
 State 170
 
-   77 multiplicative_expression: term MULT term .
+   77 multiplicative_expression: term MULT multiplicative_expression .
 
     $default  reduce using rule 77 (multiplicative_expression)
 
@@ -2197,8 +2209,17 @@ State 170
 State 171
 
    59 var: error . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-   83 multiplicative_expression: term DIV error .
+   80 multiplicative_expression: error . MULT term
+   82                          | error . DIV term
+   83                          | term DIV error .
+   84                          | error . PER term
+   86                          | error . MULT error
+   87                          | error . DIV error
+   88                          | error . PER error
 
+    MULT              shift, and go to state 98
+    DIV               shift, and go to state 99
+    PER               shift, and go to state 101
     L_SQUARE_BRACKET  shift, and go to state 57
 
     $default  reduce using rule 83 (multiplicative_expression)
@@ -2206,7 +2227,7 @@ State 171
 
 State 172
 
-   78 multiplicative_expression: term DIV term .
+   78 multiplicative_expression: term DIV multiplicative_expression .
 
     $default  reduce using rule 78 (multiplicative_expression)
 
@@ -2214,8 +2235,17 @@ State 172
 State 173
 
    59 var: error . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-   85 multiplicative_expression: term PER error .
+   80 multiplicative_expression: error . MULT term
+   82                          | error . DIV term
+   84                          | error . PER term
+   85                          | term PER error .
+   86                          | error . MULT error
+   87                          | error . DIV error
+   88                          | error . PER error
 
+    MULT              shift, and go to state 98
+    DIV               shift, and go to state 99
+    PER               shift, and go to state 101
     L_SQUARE_BRACKET  shift, and go to state 57
 
     $default  reduce using rule 85 (multiplicative_expression)
@@ -2223,7 +2253,7 @@ State 173
 
 State 174
 
-   79 multiplicative_expression: term PER term .
+   79 multiplicative_expression: term PER multiplicative_expression .
 
     $default  reduce using rule 79 (multiplicative_expression)
 

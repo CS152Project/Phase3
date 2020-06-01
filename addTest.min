@@ -1,13 +1,10 @@
-function main; 
+function main;
 beginparams
 endparams
 beginlocals 
 z : integer;
 endlocals
 beginbody
-z := a * b * c; 
-a := b * c;
-b := x * y;
-q := d * e;
+a := b + c;
 endbody
  
