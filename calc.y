@@ -54,7 +54,7 @@ std::string Temp()
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT     
+%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
 
 %%
 
@@ -170,11 +170,11 @@ relation_expression: NOT expressions comp expressions
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
                  | expressions comp expressions 
-                 {printf("relation_expression->expressions comp expressions\n");}
+                { }
                  | TRUE 
                  { }
                  | FALSE
-                 {printf("relation_expression->FALSE\n");}
+                 { }
                  | L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->L_PAREN bool_expressions R_PAREN\n");}
                  | L_PAREN error R_PAREN
@@ -184,15 +184,15 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {$$.name = (char *)("==");} 
+    {$$.name = (char *)("=="); $$.datatype = 1;} 
      | NEQ 
-    {$$.name = (char *)("!=");}
+    {$$.name = (char *)("!="); $$.datatype = 1;}
      | LT
-    {$$.name = (char *)("<");}
+    {$$.name = (char *)("<"); $$.datatype = 1;}
      | GT
-    {$$.name = (char *)(">");}
+    {$$.name = (char *)(">"); $$.datatype = 1;}
      | GTE
-    {$$.name = (char *)(">=");}
+    {$$.name = (char *)(">="); $$.datatype = 1;}
      | LTE
     {$$.name = (char *)("<=");}
      | error 
@@ -611,7 +611,7 @@ term: ident L_PAREN expressions R_PAREN
     | L_PAREN expressions R_PAREN
     {std::string code = ""; code += "("; char ch [1024]; sprintf(ch, "%d", $2.val); code += ch; code += ") "; $$.name = (char *)code.c_str();}
     | MINUS var
-    {printf("term->MINUS var\n");}
+    {}
     | MINUS NUMBER 
     {std::string code = ""; code += "-"; char ch [1024]; sprintf(ch, "%d", $2.val); code += ch; $$.name = (char *)code.c_str();}
     | MINUS L_PAREN expressions R_PAREN

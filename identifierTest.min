@@ -1,0 +1,11 @@
+function main; 
+beginparams
+endparams
+beginlocals
+a : array [3000] of integer;
+b : array [1000][2000] of integer;
+i, j : integer;
+endlocals
+beginbody
+endbody
+

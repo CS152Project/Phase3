@@ -1740,7 +1740,7 @@ yyreduce:
 
   case 45:
 #line 173 "calc.y" /* yacc.c:1646  */
-    {printf("relation_expression->expressions comp expressions\n");}
+    { }
 #line 1745 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1752,7 +1752,7 @@ yyreduce:
 
   case 47:
 #line 177 "calc.y" /* yacc.c:1646  */
-    {printf("relation_expression->FALSE\n");}
+    { }
 #line 1757 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1776,31 +1776,31 @@ yyreduce:
 
   case 51:
 #line 187 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)("==");}
+    {(yyval.type_id).name = (char *)("=="); (yyval.type_id).datatype = 1;}
 #line 1781 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
 #line 189 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)("!=");}
+    {(yyval.type_id).name = (char *)("!="); (yyval.type_id).datatype = 1;}
 #line 1787 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
 #line 191 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)("<");}
+    {(yyval.type_id).name = (char *)("<"); (yyval.type_id).datatype = 1;}
 #line 1793 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
 #line 193 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)(">");}
+    {(yyval.type_id).name = (char *)(">"); (yyval.type_id).datatype = 1;}
 #line 1799 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
 #line 195 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)(">=");}
+    {(yyval.type_id).name = (char *)(">="); (yyval.type_id).datatype = 1;}
 #line 1805 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2363,7 +2363,7 @@ yyreduce:
 
   case 94:
 #line 614 "calc.y" /* yacc.c:1646  */
-    {printf("term->MINUS var\n");}
+    {}
 #line 2368 "parser.tab.c" /* yacc.c:1646  */
     break;
 
