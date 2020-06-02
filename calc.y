@@ -194,7 +194,7 @@ comp: EQ
      | GTE
     {$$.name = (char *)(">="); $$.datatype = 1;}
      | LTE
-    {$$.name = (char *)("<=");}
+    {$$.name = (char *)("<="); $$.datatype = 1;}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;

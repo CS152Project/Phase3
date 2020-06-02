@@ -1806,7 +1806,7 @@ yyreduce:
 
   case 56:
 #line 197 "calc.y" /* yacc.c:1646  */
-    {(yyval.type_id).name = (char *)("<=");}
+    {(yyval.type_id).name = (char *)("<="); (yyval.type_id).datatype = 1;}
 #line 1811 "parser.tab.c" /* yacc.c:1646  */
     break;
 
