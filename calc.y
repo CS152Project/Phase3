@@ -193,7 +193,7 @@ relation_expression: NOT expressions comp expressions
                  | expressions comp expressions 
                  { }
                  | TRUE 
-                 { }
+                 { std::string temp = "1"; $$.name = *char.c_str; $$.datatype = 0; }
                  | FALSE
                  { }
                  | L_PAREN bool_expression R_PAREN

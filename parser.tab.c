@@ -1777,7 +1777,7 @@ yyreduce:
 
   case 47:
 #line 196 "calc.y" /* yacc.c:1646  */
-    { }
+    { std::string temp = "1"; (yyval.type_id).name = *char.c_str; (yyval.type_id).datatype = 0; }
 #line 1782 "parser.tab.c" /* yacc.c:1646  */
     break;
 
