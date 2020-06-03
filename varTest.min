@@ -5,7 +5,7 @@ beginlocals
 x : integer;
 endlocals
 beginbody
-z := b * c;
+x := b * c;
 b := x * y;
 q := d * e;
 endbody

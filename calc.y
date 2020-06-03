@@ -65,17 +65,20 @@ std::string make_labels()
 
 %%
 
-start_program: program {if(no_error) 
-	                 { 
-		           std::ofstream file;
-                           file.open ("varTest.mil", std::ostream::in | std::ostream::out | std::ostream::app); 		
-                         } 
-                     }
+start_program: program 
+	        {if(no_error)
+	           {
+		     std::string *code = new std::string;
+		     std::ofstream file;
+                     file.open ("varTest.mil", std::ios::app);
+                     file << std::endl;
+                   }
+                }
 	    /* printf("%s\n", $1.val);}  */
 
 program: /*empty*/
        {
-        //$$ = ""
+      //  $$ = ""
        }
        | functions program  
        {
@@ -405,12 +408,16 @@ multiplicative_expression: term
 			     tmp->append(Temp());
 			     code->append("*");
 			     code->append(*tmp);
-                           //std::cout << "s" << std::endl;
 			     code->append(", ");
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
+                          //   std::ofstream file; 
+                          //   file.open ("varTest.mil", std::ios::app);
+                          //   file << std::endl;
+                          //   file << *code; 
+                          //   file >> close; 
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -427,6 +434,10 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
+                          //   std::ofstream file; 
+                          //   file.open ("varTest.mil", std::ios::app);
+                          //   file << std::endl;
+                          //   file << *code;
 			     std::cout << *code << std::endl;
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
@@ -444,6 +455,11 @@ multiplicative_expression: term
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
+                           //  std::ofstream file; 
+                           //  file.open ("varTest.mil", std::ios::app);
+                           //  file << std::endl;
+                           //  file << *code;
+                           //    file.close;
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
@@ -462,6 +478,10 @@ multiplicative_expression: term
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
 			     std::cout << *code << std::endl;
+                          //   std::ofstream file; 
+                          //   file.open ("varTest.mil", std::ios::app);
+                          //   file << std::endl;
+                          //   file << *code;
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
