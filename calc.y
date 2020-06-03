@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <fstream>
 void yyerror(const char *msg);
 extern FILE * yyin;
 extern int currLine;
@@ -17,14 +18,20 @@ std::string newLabel();
  
 std::string Temp() 
 {
-   static int num = 0;
-   std::string temp = "__temp__" + std::to_string(num++);
+   static int num_temps = 0;
+   std::string temp = "__temp__" + std::to_string(num_temps++);
    return temp;
 }
+std::string make_labels()
+   {
+     static int num_labels = 0;
+     std::string label = "__label__" + std::to_string(num_labels++);
+     return label;
+   }
+
 %}
 
 %union {   
-  
   struct _typeId
     {
       char *name;
@@ -34,7 +41,7 @@ std::string Temp()
 }
 
 %error-verbose
-%start program
+%start start_program
 %token FUNCTION SEMICOLON COMMA COLON READ WRITE
 %token MULT DIV PLUS MINUS EQUAL PER END FOR CONTINUE 
 %token L_SQUARE_BRACKET R_SQUARE_BRACKET L_PAREN R_PAREN 
@@ -54,11 +61,17 @@ std::string Temp()
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
+%type <type_id> program statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
 
 %%
 
-/*start_program: program {if(no_error) */
+start_program: program {if(no_error) 
+	                 { 
+		           std::ofstream file;
+                           file.open ("varTest.mil", std::ostream::in | std::ostream::out | std::ostream::app);
+                           file << $1.name; 		
+                         } 
+                     }
 	    /* printf("%s\n", $1.val);}  */
 
 program: /*empty*/
@@ -170,7 +183,7 @@ relation_expression: NOT expressions comp expressions
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
                  | expressions comp expressions 
-                { }
+                 { }
                  | TRUE 
                  { }
                  | FALSE
@@ -184,17 +197,17 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {$$.name = (char *)("=="); $$.datatype = 1;} 
+    {$$.name = (char *)("==");} 
      | NEQ 
-    {$$.name = (char *)("!="); $$.datatype = 1;}
+    {$$.name = (char *)("!=");}
      | LT
-    {$$.name = (char *)("<"); $$.datatype = 1;}
+    {$$.name = (char *)("<");}
      | GT
-    {$$.name = (char *)(">"); $$.datatype = 1;}
+    {$$.name = (char *)(">");}
      | GTE
-    {$$.name = (char *)(">="); $$.datatype = 1;}
+    {$$.name = (char *)(">=");}
      | LTE
-    {$$.name = (char *)("<="); $$.datatype = 1;}
+    {$$.name = (char *)("<=");}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
