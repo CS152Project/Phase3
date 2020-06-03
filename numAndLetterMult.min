@@ -7,5 +7,6 @@ endlocals
 beginbody
 z := a * 7;
 b := 4 * c;
+c := a * 7 * b * 3 * 3 * d * v * c * 1;
 endbody
  

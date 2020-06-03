@@ -1,12 +1,1 @@
-function main; 
-beginparams
-endparams
-beginlocals 
-x : integer;
-endlocals
-beginbody
-x := 7;
-read x;
-write x;
-endbody
- 
+5
