@@ -68,16 +68,19 @@ std::string make_labels()
 start_program: program {if(no_error) 
 	                 { 
 		           std::ofstream file;
-                           file.open ("varTest.mil", std::ostream::in | std::ostream::out | std::ostream::app);
-                           file << $1.name; 		
+                           file.open ("varTest.mil", std::ostream::in | std::ostream::out | std::ostream::app); 		
                          } 
                      }
 	    /* printf("%s\n", $1.val);}  */
 
 program: /*empty*/
-       {}
+       {
+        //$$ = ""
+       }
        | functions program  
-       {}
+       {
+        //$$ = $1 + "\n" + $2
+       }
        ;
 functions: /*empty*/
 	   {} 
@@ -85,7 +88,12 @@ functions: /*empty*/
        {}
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
-	{ 
+	{
+         //$$ = "func" + $2 + "\n";
+         //$$ += $5.name + "\n";
+         //$$ += $8 + "\n";
+         //$$ += $11 + "\n"
+         //$$ += "endfunc";
         } 
        ;
 declarations: /*empty*/
