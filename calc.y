@@ -28,7 +28,7 @@ std::string make_labels()
      std::string label = "__label__" + std::to_string(num_labels++);
      return label;
    }
-
+std::string final_code = "";
 %}
 
 %union {   
@@ -61,38 +61,40 @@ std::string make_labels()
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> program statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
+%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
 
 %%
 
 start_program: program 
 	        {if(no_error)
 	           {
-		     std::string *code = new std::string;
 		     std::ofstream file;
-                     file.open ("varTest.mil", std::ios::app);
-                     file << std::endl;
+                     file.open ("NULL", std::ios::app);
+                     file << final_code;
+	             file.close();
+                     
                    }
                 }
 	    /* printf("%s\n", $1.val);}  */
 
 program: /*empty*/
        {
-      //  $$ = ""
+       // std::string tempMain = "";
+      //if ( )
        }
        | functions program  
        {
-        //$$ = $1 + "\n" + $2
+        $$.name = $1.name;
        }
        ;
 functions: /*empty*/
 	   {} 
        | function functions
-       {}
+       {$$.name = $1.name; }
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
 	{
-         //$$ = "func" + $2 + "\n";
+         $$.name = "func" + $2.name + "\n";
          //$$ += $5.name + "\n";
          //$$ += $8 + "\n";
          //$$ += $11 + "\n"
@@ -100,9 +102,10 @@ function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LO
         } 
        ;
 declarations: /*empty*/
-	   {}
+	   {//$$.name = $1.name; $$.datatype = 1
+           }
         | declaration SEMICOLON declarations 
-           {}
+           { }
         | error SEMICOLON declarations
            {printf("syntax error: Missing declaration at line %d\n", currLine);}
         | declaration error declarations 
@@ -226,7 +229,7 @@ comp: EQ
 var: IDENT  
     {$$.name = $1.name; $$.datatype = 1;} 
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
-    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str(); $$.datatype = 1;}  
+    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str(); $$.datatype = 1;}
     | error L_SQUARE_BRACKET expression R_SQUARE_BRACKET
     {printf("syntax error: missing identifier in line %d\n", currLine);}
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET
@@ -263,6 +266,8 @@ expression: multiplicative_expression
    	         code->append($1.name);
 	         code->append(", ");
 		 code->append($3.name);
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         std::cout << *code << std::endl;
 		 $$.name = (char *)(tmp->c_str());
                  $$.datatype = 1;
@@ -281,6 +286,8 @@ expression: multiplicative_expression
 	         sprintf(ch, "%d", $3.val);
 		 code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str()); 
 	         $$.datatype = 1; 
              }      
@@ -296,6 +303,8 @@ expression: multiplicative_expression
 		 code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
 	         $$.datatype = 1; 
              }  
@@ -314,6 +323,8 @@ expression: multiplicative_expression
                  sprintf(ch, "%d", $3.val);
 	         code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         $$.name = (char *)tmp->c_str();
                  $$.datatype = 1; 
             }
@@ -331,6 +342,8 @@ expression: multiplicative_expression
 	         code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
                  $$.datatype = 1;
              }
@@ -348,6 +361,8 @@ expression: multiplicative_expression
 	         sprintf(ch, "%d", $3.val);
 		 code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str()); 
 	         $$.datatype = 1; 
              }      
@@ -363,6 +378,8 @@ expression: multiplicative_expression
 		 code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
 	         $$.datatype = 1; 
              }  
@@ -381,6 +398,8 @@ expression: multiplicative_expression
                  sprintf(ch, "%d", $3.val);
 	         code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         $$.name = (char *)tmp->c_str();
                  $$.datatype = 1; 
             }
@@ -413,11 +432,8 @@ multiplicative_expression: term
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
-                          //   std::ofstream file; 
-                          //   file.open ("varTest.mil", std::ios::app);
-                          //   file << std::endl;
-                          //   file << *code; 
-                          //   file >> close; 
+			     final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -434,11 +450,9 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-                          //   std::ofstream file; 
-                          //   file.open ("varTest.mil", std::ios::app);
-                          //   file << std::endl;
-                          //   file << *code;
 			     std::cout << *code << std::endl;
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -455,11 +469,8 @@ multiplicative_expression: term
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
-                           //  std::ofstream file; 
-                           //  file.open ("varTest.mil", std::ios::app);
-                           //  file << std::endl;
-                           //  file << *code;
-                           //    file.close;
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
@@ -477,11 +488,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
-                          //   std::ofstream file; 
-                          //   file.open ("varTest.mil", std::ios::app);
-                          //   file << std::endl;
-                          //   file << *code;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
@@ -498,7 +507,9 @@ multiplicative_expression: term
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -515,7 +526,9 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -531,7 +544,9 @@ multiplicative_expression: term
    			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
@@ -549,7 +564,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
@@ -566,7 +583,9 @@ multiplicative_expression: term
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -583,7 +602,9 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -599,7 +620,9 @@ multiplicative_expression: term
    			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
@@ -617,7 +640,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }

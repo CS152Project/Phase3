@@ -1,1 +1,14 @@
-5
+function main; 
+beginparams
+endparams
+beginlocals 
+x : integer;
+endlocals
+beginbody
+x := a / b;
+y := 5 / 4;
+z := x / 3;
+q := 6 / a;
+a := 5 / a / 2 / 4 / c / d / e;
+endbody
+
