@@ -61,26 +61,24 @@ std::string final_code = "";
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
+%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression declarations    
 
 %%
 
 start_program: program 
 	        {if(no_error)
 	           {
+                    // printf("%s\n", $1.name);
 		     std::ofstream file;
                      file.open ("NULL", std::ios::app);
                      file << final_code;
-	             file.close();
-                     
+	             file.close();        
                    }
                 }
-	    /* printf("%s\n", $1.val);}  */
 
 program: /*empty*/
        {
        // std::string tempMain = "";
-      //if ( )
        }
        | functions program  
        {
@@ -90,22 +88,46 @@ program: /*empty*/
 functions: /*empty*/
 	   {} 
        | function functions
-       {$$.name = $1.name; }
+       {$$.name = $1.name; $$.name = $2.name;}
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
 	{
-         $$.name = "func" + $2.name + "\n";
-         //$$ += $5.name + "\n";
-         //$$ += $8 + "\n";
-         //$$ += $11 + "\n"
-         //$$ += "endfunc";
+       	 /* std::string *code = new std::string;
+          std::string *tmp = new std::string;
+	  tmp->append(Temp());
+          code->append("func ");
+	  code->append(*tmp);
+	  code->append($2.name);
+   	  code->append(";");
+          code->append($5.name);
+          code->append("\n");
+          code->append($8.name);
+          code->append("\n");
+          code->append($11.name);
+          code->append("\n");
+          code->append("end_func");
+          final_code.append(*code);
+          final_code.append("\n");
+	  std::cout << *code << std::endl;
+          $$.name = (char *)(tmp->c_str());
+          $$.datatype = 1;*/
         } 
        ;
 declarations: /*empty*/
-	   {//$$.name = $1.name; $$.datatype = 1
+	   {//$$.name = ""; 
            }
         | declaration SEMICOLON declarations 
-           { }
+          { std::string *code = new std::string;
+           std::string *tmp = new std::string;
+           code->append($1.name);
+           code->append(". ");
+           code->append($3.name);
+           code->append("\n"); 
+           final_code.append(*code);
+           final_code.append("\n");
+           std::cout << *code << std::endl;
+           $$.name = (char *)(code->c_str()); 
+          }
         | error SEMICOLON declarations
            {printf("syntax error: Missing declaration at line %d\n", currLine);}
         | declaration error declarations 
@@ -169,7 +191,7 @@ statement: var ASSIGN expressions
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf(".> %s\n", $2.name); std::string name = "bobby";} 
+         {printf(".> %s\n", $2.name);} 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
