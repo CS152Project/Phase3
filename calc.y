@@ -174,7 +174,13 @@ statement: var ASSIGN expressions
              }
            } 
          | IF bool_expression THEN statements ENDIF
-         {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
+         {/*if($2.datatype == 1)
+           {
+             
+           }
+          */
+          
+         }
          | IF bool_expression THEN statements ELSE statements ENDIF
          {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}  
          | WHILE bool_expression BEGINLOOP statements ENDLOOP
@@ -228,106 +234,12 @@ relation_expression: NOT expressions comp expressions
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
                  | expressions comp expressions
-                  {/*if($1.datatype == 1 && $3.datatype == 1)
-                   { 
-       	            std::string *code = new std::string;
-         	    std::string *tmp = new std::string;
-                    std::string *x = new std::string;
-                    x->append(". ");
-	            tmp->append(Temp());
-                    x->append(*tmp);
-                    x->append("\n");
-                    final_code.append(*x);
-               	    code->append($2.name);
-	            code->append(*tmp);
-                    code->append(", ");
-		    code->append($1.name);
-                    code->append(", ");
-                    code->append($3.name);
-                    final_code.append(*code);
-                    final_code.append("\n");
-	            std::cout << *code << std::endl;
-		    $$.name = (char *)(tmp->c_str());
-                    $$.datatype = 1;
-                   }
-	         else if($1.datatype == 1 && $3.datatype == 0)
-                   {
-                    std::string *code = new std::string;
-	            std::string *tmp = new std::string;
-                    std::string *x = new std::string;
-                    x->append(". ");
-	            tmp->append(Temp());
-                    x->append(*tmp);
-                    x->append("\n");
-                    final_code.append(*x);
-	            code->append("+ ");
-	            code->append(*tmp);
-	            code->append(", ");
-   	            code->append($1.name);
-	            code->append(", ");
-                    char ch[1024];
-	            sprintf(ch, "%d", $3.val);
-		    code->append(ch);
-	            std::cout << *code << std::endl;
-                    final_code.append(*code);
-                    final_code.append("\n");
-		    $$.name = (char *)(tmp->c_str()); 
-	            $$.datatype = 1; 
-                  }      
-                 else if($1.datatype == 0 && $3.datatype == 1)
-                   {           
-                    std::string *code = new std::string;
-	            std::string *tmp = new std::string; 
-                    std::string *x = new std::string;
-                    x->append(". ");
-	            tmp->append(Temp());
-                    x->append(*tmp);
-                    x->append("\n");
-                    final_code.append(*x);
-	      //    tmp->append(Temp());
-	            code->append("+ ");
-		    code->append(*tmp);
-	            code->append(", ");
-   		    code->append(std::to_string($1.val));
-		    code->append(", ");
-		    code->append($3.name);
-	            std::cout << *code << std::endl;
-                    final_code.append(*code);
-                    final_code.append("\n");
-		    $$.name = (char *)(tmp->c_str());
-	            $$.datatype = 1; 
-                    }  
-	         else
-                  {     
-	            std::string *code = new std::string;
-	            std::string *tmp = new std::string; 
-                    std::string *x = new std::string;
-                    x->append(". ");
-	            tmp->append(Temp());
-                    x->append(*tmp);
-                    x->append("\n");
-                    final_code.append(*x);
-	      //    tmp->append(Temp());
-	            code->append("+ ");
-	            code->append(*tmp);
-	            code->append(", ");
-                    char ch[1024];
-	            sprintf(ch, "%d", $1.val);
-	            code->append(ch);
-	            code->append(", ");
-                    sprintf(ch, "%d", $3.val);
-	            code->append(ch);
-	            std::cout << *code << std::endl;
-                    final_code.append(*code);
-                    final_code.append("\n");
-	            $$.name = (char *)tmp->c_str();
-                    $$.datatype = 1; 
-                  }*/
-               }
+                  {/*if($1.datatype == 1 && $3.datatype == 1 */
+                  }
                  | TRUE 
-                 { }
+                 {$$.name = $1.name;}
                  | FALSE
-                 { }
+                 {$$.name = $1.name;}
                  | L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->L_PAREN bool_expressions R_PAREN\n");}
                  | L_PAREN error R_PAREN
