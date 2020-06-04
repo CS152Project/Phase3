@@ -1,8 +1,0 @@
-func main
-. x
-.< x
-. __temp__0
-* __temp__0, x, 10
-= x, __temp__0
-.> x
-endfunc

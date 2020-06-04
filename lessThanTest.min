@@ -4,7 +4,7 @@ endparams
 beginlocals
 endlocals
 beginbody
-  if 3 < 5 then
-    j := i + i;
+ ## if 3 < 5 then
+ ##  j := i + i;
 endif;
 endbody

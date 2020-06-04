@@ -62,7 +62,7 @@ std::string filename = "";
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression declarations    
+%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression declarations bool_expression     
 
 %%
 
@@ -210,12 +210,12 @@ statement: var ASSIGN expressions
          ;
 
 bool_expression: relation_and_expression
-		{printf("bool_expression->relation_and_expression\n");}
+		{$$.name = $1.name; $$.datatype = 1;}
               | relation_and_expression OR relation_and_expression
                 {printf("bool_expression->relation_and_expression OR relation_and_expression\n");}
          ;
 relation_and_expression: relation_expression
-		       {printf("relation_and_expression->relation_expression\n");}
+		       {$$.name = $1.name; $$.datatype = 1;}
                  | relation_expression AND relation_expression
 		       {printf("relation_and_expressions->relation_expression OR relation_expression\n");}
          ;
@@ -228,8 +228,102 @@ relation_expression: NOT expressions comp expressions
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
                  | expressions comp expressions
-                    { 
-                    }
+                  {/*if($1.datatype == 1 && $3.datatype == 1)
+                   { 
+       	            std::string *code = new std::string;
+         	    std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+               	    code->append($2.name);
+	            code->append(*tmp);
+                    code->append(", ");
+		    code->append($1.name);
+                    code->append(", ");
+                    code->append($3.name);
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            std::cout << *code << std::endl;
+		    $$.name = (char *)(tmp->c_str());
+                    $$.datatype = 1;
+                   }
+	         else if($1.datatype == 1 && $3.datatype == 0)
+                   {
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	            code->append("+ ");
+	            code->append(*tmp);
+	            code->append(", ");
+   	            code->append($1.name);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $3.val);
+		    code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str()); 
+	            $$.datatype = 1; 
+                  }      
+                 else if($1.datatype == 0 && $3.datatype == 1)
+                   {           
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("+ ");
+		    code->append(*tmp);
+	            code->append(", ");
+   		    code->append(std::to_string($1.val));
+		    code->append(", ");
+		    code->append($3.name);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str());
+	            $$.datatype = 1; 
+                    }  
+	         else
+                  {     
+	            std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("+ ");
+	            code->append(*tmp);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $1.val);
+	            code->append(ch);
+	            code->append(", ");
+                    sprintf(ch, "%d", $3.val);
+	            code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            $$.name = (char *)tmp->c_str();
+                    $$.datatype = 1; 
+                  }*/
+               }
                  | TRUE 
                  { }
                  | FALSE
@@ -243,17 +337,17 @@ relation_expression: NOT expressions comp expressions
          ;
 
 comp: EQ
-    {$$.name = (char *)("==");} 
+    {$$.name = (char *)("== ");} 
      | NEQ 
-    {$$.name = (char *)("!=");}
+    {$$.name = (char *)("!= ");}
      | LT
-    {$$.name = (char *)("<");}
+    {$$.name = (char *)("< ");}
      | GT
-    {$$.name = (char *)(">");}
+    {$$.name = (char *)("> ");}
      | GTE
-    {$$.name = (char *)(">=");}
+    {$$.name = (char *)(">= ");}
      | LTE
-    {$$.name = (char *)("<=");}
+    {$$.name = (char *)("<= ");}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
