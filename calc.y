@@ -16,7 +16,7 @@ bool no_error = true;
 std::string Temp();
 std::string newLabel();
  
-std::string Temp() 
+std::string Temp() // This is so we can generate temps 
 {
    static int num_temps = 0;
    std::string temp = "__temp__" + std::to_string(num_temps++);
@@ -28,7 +28,7 @@ std::string make_labels()
      std::string label = "__label__" + std::to_string(num_labels++);
      return label;
    }
-std::string final_code = "";
+std::string final_code = ""; // global variable so we run the code
 %}
 
 %union {   
@@ -70,7 +70,7 @@ start_program: program
 	           {
                     // printf("%s\n", $1.name);
 		     std::ofstream file;
-                     file.open ("NULL", std::ios::app);
+                     file.open ("varTest.mil", std::ios::app);
                      file << final_code;
 	             file.close();        
                    }
@@ -88,45 +88,25 @@ program: /*empty*/
 functions: /*empty*/
 	   {} 
        | function functions
-       {$$.name = $1.name; $$.name = $2.name;}
+       {$$.name = $1.name;}
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
 	{
-       	 /* std::string *code = new std::string;
-          std::string *tmp = new std::string;
-	  tmp->append(Temp());
-          code->append("func ");
-	  code->append(*tmp);
-	  code->append($2.name);
-   	  code->append(";");
-          code->append($5.name);
-          code->append("\n");
-          code->append($8.name);
-          code->append("\n");
-          code->append($11.name);
-          code->append("\n");
-          code->append("end_func");
-          final_code.append(*code);
+       	  std::string *code = new std::string; // Intialize string code pointer
+          code->append("func "); // add or append to func, should output func in mil file
+	  code->append($2.name); 
+          code->append("\n"); // add new line
+          final_code.insert(0, *code); 
+          final_code.append("endfunc"); 
           final_code.append("\n");
 	  std::cout << *code << std::endl;
-          $$.name = (char *)(tmp->c_str());
-          $$.datatype = 1;*/
+          $$.name = $2.name;
         } 
        ;
 declarations: /*empty*/
-	   {//$$.name = ""; 
-           }
-        | declaration SEMICOLON declarations 
-          { std::string *code = new std::string;
-           std::string *tmp = new std::string;
-           code->append($1.name);
-           code->append(". ");
-           code->append($3.name);
-           code->append("\n"); 
-           final_code.append(*code);
-           final_code.append("\n");
-           std::cout << *code << std::endl;
-           $$.name = (char *)(code->c_str()); 
+	   {/*$$.name = "" */} 
+        | declaration SEMICOLON declarations
+          { 
           }
         | error SEMICOLON declarations
            {printf("syntax error: Missing declaration at line %d\n", currLine);}
@@ -136,11 +116,11 @@ declarations: /*empty*/
            {printf("syntax error: Missing declarations at line %d\n", currLine);}
 	;
 declaration: ident COLON INTEGER
-           {std::string x; x = $1.name; std::string code = ""; code += ". "; code += x; code += "\n"; std::cout << code << std::endl;}
+           {std::string x; x = $1.name; std::string code = ""; code += ". "; code += x; code += "\n"; final_code.append(code); std::cout << code << std::endl;}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; final_code.append(code); std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; final_code.append(code); std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | error COLON INTEGER
           {printf("syntax error: missing identifier at line %d\n", currLine);}
         | ident error INTEGER 
@@ -170,10 +150,25 @@ statement: var ASSIGN expressions
 	   {if($3.datatype == 1) 
             {
                printf("= %s, %s\n", $1.name, $3.name);
+               std::string *code = new std::string(); //created a new string code pointer and intialized the code pointer
+               code->append("= "); // add or append =, which should output to mil
+               code->append($1.name);  
+               code->append(", "); 
+               code->append($3.name);
+               code->append("\n");
+               final_code.append(*code); 
+               
             }
             else
              {
                printf("= %s, %d\n", $1.name, $3.val);
+               std::string *code = new std::string(); //created a new string pointer called code and initialized code pointer
+               code->append("= "); // append = to code, output to mil
+               code->append($1.name); // output to mil 
+               code->append(", "); 
+               code->append(std::to_string($3.val)); // first append then convert the string to a number
+               code->append("\n");
+               final_code.append(*code); 
              }
            } 
          | IF bool_expression THEN statements ENDIF
@@ -187,11 +182,23 @@ statement: var ASSIGN expressions
          | FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements ENDLOOP
          {printf("statement->FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements SEMICOLON ENDLOOP\n");}
          | READ vars 
-         {printf(".< %s\n", $2.name);}  
+         {printf(".< %s\n", $2.name);
+          std::string *code = new std::string();
+          code->append(".< ");
+          code->append($2.name);
+          code->append("\n");
+          final_code.append(*code); 
+         }  
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf(".> %s\n", $2.name);} 
+         {printf(".> %s\n", $2.name);
+          std::string *code = new std::string();
+          code->append(".> ");
+          code->append($2.name);
+          code->append("\n");
+          final_code.append(*code); 
+         } 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
@@ -281,8 +288,13 @@ expression: multiplicative_expression
               { 
        	         std::string *code = new std::string;
          	 std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-               	 code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+               	 code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -298,8 +310,13 @@ expression: multiplicative_expression
              {
                  std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	         code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -316,9 +333,15 @@ expression: multiplicative_expression
            else if($1.datatype == 0 && $3.datatype == 1)
              {           
                  std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append("+ ");
 		 code->append(*tmp);
 	         code->append(", ");
    		 code->append(std::to_string($1.val));
@@ -333,9 +356,15 @@ expression: multiplicative_expression
 	   else
              {    
 	         std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
                  char ch[1024];
@@ -355,9 +384,15 @@ expression: multiplicative_expression
            {if($1.datatype == 1 && $3.datatype == 1)
               { 
        	         std::string *code = new std::string;
-         	 std::string *tmp = new std::string;
+         	 std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-               	 code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+               	 code->append("- ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -372,9 +407,15 @@ expression: multiplicative_expression
 	   else if($1.datatype == 1 && $3.datatype == 0)
              {
                  std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	       //  tmp->append(Temp());
+	         code->append("- ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -392,8 +433,14 @@ expression: multiplicative_expression
              {           
                  std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	     //  tmp->append(Temp());
+	         code->append("- ");
 		 code->append(*tmp);
 	         code->append(", ");
    		 code->append(std::to_string($1.val));
@@ -409,7 +456,13 @@ expression: multiplicative_expression
              {    
 	         std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	     //  tmp->append(Temp());
 	         code->append("-");
 	         code->append(*tmp);
 	         code->append(", ");
@@ -445,9 +498,15 @@ multiplicative_expression: term
                            {if($1.datatype == 1 && $3.datatype == 1)
                            { 
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -463,8 +522,14 @@ multiplicative_expression: term
                             {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -482,9 +547,15 @@ multiplicative_expression: term
                             { 
 		               
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string;  
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
@@ -499,9 +570,14 @@ multiplicative_expression: term
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
@@ -521,9 +597,14 @@ multiplicative_expression: term
                          { if($1.datatype == 1 && $3.datatype == 1)
                            { 
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string;  
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -538,9 +619,15 @@ multiplicative_expression: term
 			   else if($1.datatype == 1 && $3.datatype == 0)
                             {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
 			     tmp->append(Temp());
-			     code->append("/");
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -558,9 +645,15 @@ multiplicative_expression: term
                             { 
 		               
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
@@ -575,9 +668,15 @@ multiplicative_expression: term
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
@@ -598,8 +697,14 @@ multiplicative_expression: term
                            { 
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -615,8 +720,14 @@ multiplicative_expression: term
                             {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -636,7 +747,7 @@ multiplicative_expression: term
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
 			     tmp->append(Temp());
-			     code->append("%");
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
@@ -651,9 +762,15 @@ multiplicative_expression: term
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+		       //    tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
