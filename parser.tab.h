@@ -108,7 +108,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 34 "calc.y" /* yacc.c:1909  */
+#line 35 "calc.y" /* yacc.c:1909  */
    
   struct _typeId
     {

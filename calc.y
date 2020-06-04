@@ -29,6 +29,7 @@ std::string make_labels()
      return label;
    }
 std::string final_code = ""; // global variable so we run the code
+std::string filename = "";
 %}
 
 %union {   
@@ -70,7 +71,8 @@ start_program: program
 	           {
                     // printf("%s\n", $1.name);
 		     std::ofstream file;
-                     file.open ("varTest.mil", std::ios::app);
+	             filename[filename.length() - 1] = 'l'; 
+                     file.open (filename.c_str(), std::ios::app);
                      file << final_code;
 	             file.close();        
                    }
@@ -225,8 +227,9 @@ relation_expression: NOT expressions comp expressions
                  {printf("relation_expression->NOT FALSE\n");}
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
-                 | expressions comp expressions 
-                 { }
+                 | expressions comp expressions
+                    { 
+                    }
                  | TRUE 
                  { }
                  | FALSE
@@ -255,7 +258,7 @@ comp: EQ
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
 
-var: IDENT  
+var: IDENT    // $$ = $1 + $2 
     {$$.name = $1.name; $$.datatype = 1;} 
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
     {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str(); $$.datatype = 1;}
@@ -834,6 +837,7 @@ int main(int argc, char ** argv)
        { 
           yyin = stdin;
        }
+       filename = argv[1];
     }  
     else 
     {
