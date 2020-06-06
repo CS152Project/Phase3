@@ -4,7 +4,7 @@ endparams
 beginlocals
 endlocals
 beginbody
-  if a < b then
+  if a <= b then
    j := i + i;
 endif;
 endbody
