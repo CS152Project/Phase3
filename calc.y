@@ -22,10 +22,10 @@ std::string Temp() // This is so we can generate temps
    std::string temp = "__temp__" + std::to_string(num_temps++);
    return temp;
 }
-std::string make_labels()
+std::string newLabel()
    {
      static int num_labels = 0;
-     std::string label = "__label__" + std::to_string(num_labels++);
+     std::string label = "__Label__" + std::to_string(num_labels++);
      return label;
    }
 std::string final_code = ""; // global variable so we run the code
@@ -174,7 +174,16 @@ statement: var ASSIGN expressions
              }
            } 
          | IF bool_expression THEN statements ENDIF
-           {}
+           {   
+             //  std::string second_Label = newLabel();
+             //  std::string *code = new std::string();
+             //  std::string *tmp = new std::string();
+             //  second_Label.append(": ");
+             //  second_Label.append("\n");
+             //  code->append(second_Label);
+             //  code->append("\n");
+             //  final_code.append(*code);
+           }
          | IF bool_expression THEN statements ELSE statements ENDIF
          {}  
          | WHILE bool_expression BEGINLOOP statements ENDLOOP
@@ -217,6 +226,14 @@ bool_expression: relation_and_expression
                     std::string *code = new std::string; 
                     std::string *tmp = new std::string;
                     std::string *x = new std::string;
+                 //   std::string first_Label = newLabel();
+                 //   first_Label.append(": ");
+                  //  first_Label.append("\n");
+                  //  first_Label.append(first_Label);
+            	  //  first_Label.append("\n");
+                  //  final_code.append(first_Label);
+                  //  code->append($1.name);
+                  //  code->append("?:= ");
                     x->append(". ");
                     tmp->append(Temp());
                     x->append(*tmp);
@@ -229,6 +246,11 @@ bool_expression: relation_and_expression
                     code->append($1.name);
                     code->append(", ");
                     code->append($3.name);
+                //    code->append("?:= ");
+                 //   code->append(first_Label);
+                //    code->append(", ");
+                //    code->append($1.name);
+                //    code->append("\n");  
                     final_code.append(*code);
                     final_code.append("\n");
                     std::cout << *code << std::endl;
@@ -420,8 +442,7 @@ relation_expression: NOT expressions comp expressions
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
                  | expressions comp expressions
-                     
-           {if($1.datatype == 1 && $3.datatype == 1)
+             {if($1.datatype == 1 && $3.datatype == 1)
               { 
        	         std::string *code = new std::string;
              	 std::string *tmp = new std::string;
@@ -444,7 +465,7 @@ relation_expression: NOT expressions comp expressions
 		 $$.name = (char *)(tmp->c_str());
                  $$.datatype = 1; 
              }   
-	   else if($1.datatype == 1 && $3.datatype == 0)
+	     else if($1.datatype == 1 && $3.datatype == 0)
              {
                  std::string *code = new std::string;
 	         std::string *tmp = new std::string;

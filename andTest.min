@@ -2,22 +2,15 @@ function main;
 beginparams
 endparams
 beginlocals
-x : integer;
-##j : integer;
 endlocals
 beginbody
-##read x;
-  if x < 9 and x > 2 then
-    j := x * 10; 
-##write x;
+  if x >= y and a <= b then
+   j := i + i; 
 endif;
-  if 8 <= a and a >= 5 then 
-    j := a * 5;
+   if a <= c and d >= f then
+     j := i+i;
 endif;
-  if 5 == 5 and 4 >= 2 then
-    j := c * 6;
+   if n == m and j == k then 
+     x := 5 - 2;
 endif;
 endbody 
-
-
-  
