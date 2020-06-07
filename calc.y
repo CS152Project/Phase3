@@ -212,7 +212,7 @@ statement: var ASSIGN expressions
 bool_expression: relation_and_expression
 		{$$.name = $1.name; $$.datatype = 1;}
               | relation_and_expression OR relation_and_expression
-                {if($1.datatype == 1 && $3.datatype == 1)
+                {if($1.datatype == 1 || $3.datatype == 1)
                  {
                     std::string *code = new std::string; 
                     std::string *tmp = new std::string;
@@ -222,9 +222,9 @@ bool_expression: relation_and_expression
                     x->append(*tmp);
                     x->append("\n");
                   //  code->append(*tmp);
-                    final_code.append(*code);
+                    final_code.append(*x);
                     code->append("|| ");
-                    code->append(*code); 
+                    code->append(*tmp); 
                     code->append(", ");
                     code->append($1.name);
                     code->append(", ");
@@ -234,7 +234,80 @@ bool_expression: relation_and_expression
                     std::cout << *code << std::endl;
                     $$.name = (char *)(code->c_str());
                     $$.datatype = 1; 
-                 }
+                 } 
+	        else if($1.datatype == 1 || $3.datatype == 0)
+                 {
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	            code->append("|| " );
+	            code->append(*tmp);
+	            code->append(", ");
+   	            code->append($1.name);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $3.val);
+		    code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str()); 
+	            $$.datatype = 1; 
+                 }      
+               else if($1.datatype == 0 || $3.datatype == 1)
+                 {           
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+		    code->append(*tmp);
+	            code->append(", ");
+   		    code->append(std::to_string($1.val));
+		    code->append(", ");
+		    code->append($3.name);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str());
+	            $$.datatype = 1; 
+                }  
+	       else
+                {    
+	            std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+	            code->append(*tmp);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $1.val);
+	            code->append(ch);
+	            code->append(", ");
+                    sprintf(ch, "%d", $3.val);
+	            code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            $$.name = (char *)tmp->c_str();
+                    $$.datatype = 1; 
+                }
                }
          ;
 relation_and_expression: relation_expression

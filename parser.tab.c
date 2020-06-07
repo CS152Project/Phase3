@@ -527,12 +527,12 @@ static const yytype_uint16 yyrline[] =
      113,   115,   117,   120,   122,   124,   126,   128,   130,   134,
      136,   141,   142,   144,   146,   148,   151,   176,   178,   180,
      182,   184,   186,   194,   196,   204,   206,   208,   212,   214,
-     240,   242,   341,   343,   345,   347,   349,   448,   450,   452,
-     454,   456,   459,   461,   463,   465,   467,   469,   471,   475,
-     477,   479,   481,   483,   485,   487,   491,   493,   495,   497,
-     501,   503,   600,   699,   701,   703,   705,   708,   712,   714,
-     813,   912,  1006,  1008,  1010,  1012,  1014,  1016,  1018,  1020,
-    1022,  1027,  1029,  1031,  1033,  1035,  1037,  1039
+     313,   315,   414,   416,   418,   420,   422,   521,   523,   525,
+     527,   529,   532,   534,   536,   538,   540,   542,   544,   548,
+     550,   552,   554,   556,   558,   560,   564,   566,   568,   570,
+     574,   576,   673,   772,   774,   776,   778,   781,   785,   787,
+     886,   985,  1079,  1081,  1083,  1085,  1087,  1089,  1091,  1093,
+    1095,  1100,  1102,  1104,  1106,  1108,  1110,  1112
 };
 #endif
 
@@ -1766,7 +1766,7 @@ yyreduce:
 
   case 39:
 #line 215 "calc.y" /* yacc.c:1646  */
-    {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
+    {if((yyvsp[-2].type_id).datatype == 1 || (yyvsp[0].type_id).datatype == 1)
                  {
                     std::string *code = new std::string; 
                     std::string *tmp = new std::string;
@@ -1776,9 +1776,9 @@ yyreduce:
                     x->append(*tmp);
                     x->append("\n");
                   //  code->append(*tmp);
-                    final_code.append(*code);
+                    final_code.append(*x);
                     code->append("|| ");
-                    code->append(*code); 
+                    code->append(*tmp); 
                     code->append(", ");
                     code->append((yyvsp[-2].type_id).name);
                     code->append(", ");
@@ -1788,19 +1788,92 @@ yyreduce:
                     std::cout << *code << std::endl;
                     (yyval.type_id).name = (char *)(code->c_str());
                     (yyval.type_id).datatype = 1; 
-                 }
+                 } 
+	        else if((yyvsp[-2].type_id).datatype == 1 || (yyvsp[0].type_id).datatype == 0)
+                 {
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	            code->append("|| " );
+	            code->append(*tmp);
+	            code->append(", ");
+   	            code->append((yyvsp[-2].type_id).name);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", (yyvsp[0].type_id).val);
+		    code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    (yyval.type_id).name = (char *)(tmp->c_str()); 
+	            (yyval.type_id).datatype = 1; 
+                 }      
+               else if((yyvsp[-2].type_id).datatype == 0 || (yyvsp[0].type_id).datatype == 1)
+                 {           
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+		    code->append(*tmp);
+	            code->append(", ");
+   		    code->append(std::to_string((yyvsp[-2].type_id).val));
+		    code->append(", ");
+		    code->append((yyvsp[0].type_id).name);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    (yyval.type_id).name = (char *)(tmp->c_str());
+	            (yyval.type_id).datatype = 1; 
+                }  
+	       else
+                {    
+	            std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+	            code->append(*tmp);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", (yyvsp[-2].type_id).val);
+	            code->append(ch);
+	            code->append(", ");
+                    sprintf(ch, "%d", (yyvsp[0].type_id).val);
+	            code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            (yyval.type_id).name = (char *)tmp->c_str();
+                    (yyval.type_id).datatype = 1; 
+                }
                }
-#line 1794 "parser.tab.c" /* yacc.c:1646  */
+#line 1867 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 241 "calc.y" /* yacc.c:1646  */
+#line 314 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name; (yyval.type_id).datatype = 1;}
-#line 1800 "parser.tab.c" /* yacc.c:1646  */
+#line 1873 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 243 "calc.y" /* yacc.c:1646  */
+#line 316 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
                   {
                     std::string *code = new std::string; 
@@ -1898,35 +1971,35 @@ yyreduce:
                     (yyval.type_id).datatype = 1; 
                 }
               }
-#line 1902 "parser.tab.c" /* yacc.c:1646  */
+#line 1975 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 342 "calc.y" /* yacc.c:1646  */
+#line 415 "calc.y" /* yacc.c:1646  */
     {printf("relation_expression->NOT expressions comp expressions\n");}
-#line 1908 "parser.tab.c" /* yacc.c:1646  */
+#line 1981 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 344 "calc.y" /* yacc.c:1646  */
+#line 417 "calc.y" /* yacc.c:1646  */
     { }
-#line 1914 "parser.tab.c" /* yacc.c:1646  */
+#line 1987 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 346 "calc.y" /* yacc.c:1646  */
+#line 419 "calc.y" /* yacc.c:1646  */
     {printf("relation_expression->NOT FALSE\n");}
-#line 1920 "parser.tab.c" /* yacc.c:1646  */
+#line 1993 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 348 "calc.y" /* yacc.c:1646  */
+#line 421 "calc.y" /* yacc.c:1646  */
     {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");}
-#line 1926 "parser.tab.c" /* yacc.c:1646  */
+#line 1999 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 351 "calc.y" /* yacc.c:1646  */
+#line 424 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
               { 
        	         std::string *code = new std::string;
@@ -2024,155 +2097,155 @@ yyreduce:
                  (yyval.type_id).datatype = 1; 
             }
           }
-#line 2028 "parser.tab.c" /* yacc.c:1646  */
+#line 2101 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 449 "calc.y" /* yacc.c:1646  */
+#line 522 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name;}
-#line 2034 "parser.tab.c" /* yacc.c:1646  */
+#line 2107 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 451 "calc.y" /* yacc.c:1646  */
+#line 524 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name;}
-#line 2040 "parser.tab.c" /* yacc.c:1646  */
+#line 2113 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 453 "calc.y" /* yacc.c:1646  */
+#line 526 "calc.y" /* yacc.c:1646  */
     {printf("relation_expression->L_PAREN bool_expressions R_PAREN\n");}
-#line 2046 "parser.tab.c" /* yacc.c:1646  */
+#line 2119 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 455 "calc.y" /* yacc.c:1646  */
+#line 528 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing bool_expression in line %d\n", currLine);}
-#line 2052 "parser.tab.c" /* yacc.c:1646  */
+#line 2125 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 457 "calc.y" /* yacc.c:1646  */
+#line 530 "calc.y" /* yacc.c:1646  */
     {printf("synax error: missing bool_expression in line %d\n", currLine);}
-#line 2058 "parser.tab.c" /* yacc.c:1646  */
+#line 2131 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 460 "calc.y" /* yacc.c:1646  */
+#line 533 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)("== ");}
-#line 2064 "parser.tab.c" /* yacc.c:1646  */
+#line 2137 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 462 "calc.y" /* yacc.c:1646  */
+#line 535 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)("!= ");}
-#line 2070 "parser.tab.c" /* yacc.c:1646  */
+#line 2143 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 464 "calc.y" /* yacc.c:1646  */
+#line 537 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)("< ");}
-#line 2076 "parser.tab.c" /* yacc.c:1646  */
+#line 2149 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 466 "calc.y" /* yacc.c:1646  */
+#line 539 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)("> ");}
-#line 2082 "parser.tab.c" /* yacc.c:1646  */
+#line 2155 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 468 "calc.y" /* yacc.c:1646  */
+#line 541 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)(">= ");}
-#line 2088 "parser.tab.c" /* yacc.c:1646  */
+#line 2161 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 470 "calc.y" /* yacc.c:1646  */
+#line 543 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (char *)("<= ");}
-#line 2094 "parser.tab.c" /* yacc.c:1646  */
+#line 2167 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 472 "calc.y" /* yacc.c:1646  */
+#line 545 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
-#line 2100 "parser.tab.c" /* yacc.c:1646  */
+#line 2173 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 476 "calc.y" /* yacc.c:1646  */
+#line 549 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name; (yyval.type_id).datatype = 1;}
-#line 2106 "parser.tab.c" /* yacc.c:1646  */
+#line 2179 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 478 "calc.y" /* yacc.c:1646  */
+#line 551 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += (yyvsp[-3].type_id).name; code += "["; char ch [1024]; sprintf(ch, "%d", (yyvsp[-1].type_id).val); code += ch; code += "]"; std::cout << code << std::endl; (yyval.type_id).name = (char *)code.c_str(); (yyval.type_id).datatype = 1;}
-#line 2112 "parser.tab.c" /* yacc.c:1646  */
+#line 2185 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 480 "calc.y" /* yacc.c:1646  */
+#line 553 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing identifier in line %d\n", currLine);}
-#line 2118 "parser.tab.c" /* yacc.c:1646  */
+#line 2191 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 482 "calc.y" /* yacc.c:1646  */
+#line 555 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += (yyvsp[-6].type_id).name; code += "["; char ch [1024]; sprintf(ch, "%d", (yyvsp[-4].type_id).val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", (yyvsp[-1].type_id).val); code += ch; code += "]"; std::cout << code << std::endl; (yyval.type_id).name = (char *)code.c_str(); (yyval.type_id).datatype = 1;}
-#line 2124 "parser.tab.c" /* yacc.c:1646  */
+#line 2197 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 484 "calc.y" /* yacc.c:1646  */
+#line 557 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing expression in line %d\n", currLine);}
-#line 2130 "parser.tab.c" /* yacc.c:1646  */
+#line 2203 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 486 "calc.y" /* yacc.c:1646  */
+#line 559 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing expression in line %d\n", currLine);}
-#line 2136 "parser.tab.c" /* yacc.c:1646  */
+#line 2209 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 488 "calc.y" /* yacc.c:1646  */
+#line 561 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing expression in line %d\n", currLine);}
-#line 2142 "parser.tab.c" /* yacc.c:1646  */
+#line 2215 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 492 "calc.y" /* yacc.c:1646  */
+#line 565 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name; (yyval.type_id).datatype = 1;}
-#line 2148 "parser.tab.c" /* yacc.c:1646  */
+#line 2221 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 494 "calc.y" /* yacc.c:1646  */
+#line 567 "calc.y" /* yacc.c:1646  */
     {}
-#line 2154 "parser.tab.c" /* yacc.c:1646  */
+#line 2227 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 496 "calc.y" /* yacc.c:1646  */
+#line 569 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing variable in line %d\n", currLine);}
-#line 2160 "parser.tab.c" /* yacc.c:1646  */
+#line 2233 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 498 "calc.y" /* yacc.c:1646  */
+#line 571 "calc.y" /* yacc.c:1646  */
     {printf("syntax error: missing variables in line %d\n", currLine);}
-#line 2166 "parser.tab.c" /* yacc.c:1646  */
+#line 2239 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 502 "calc.y" /* yacc.c:1646  */
+#line 575 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).val = (yyvsp[0].type_id).val; (yyval.type_id).datatype = (yyvsp[0].type_id).datatype;}
-#line 2172 "parser.tab.c" /* yacc.c:1646  */
+#line 2245 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 504 "calc.y" /* yacc.c:1646  */
+#line 577 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
               { 
        	         std::string *code = new std::string;
@@ -2269,11 +2342,11 @@ yyreduce:
                  (yyval.type_id).datatype = 1; 
             }
          }
-#line 2273 "parser.tab.c" /* yacc.c:1646  */
+#line 2346 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 601 "calc.y" /* yacc.c:1646  */
+#line 674 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
               { 
        	         std::string *code = new std::string;
@@ -2372,47 +2445,47 @@ yyreduce:
                  (yyval.type_id).datatype = 1; 
             }
            }
-#line 2376 "parser.tab.c" /* yacc.c:1646  */
+#line 2449 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 700 "calc.y" /* yacc.c:1646  */
+#line 773 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing first term for addition at line %d\n", currLine);}
-#line 2382 "parser.tab.c" /* yacc.c:1646  */
+#line 2455 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 702 "calc.y" /* yacc.c:1646  */
+#line 775 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing second term for addition at line %d\n", currLine);}
-#line 2388 "parser.tab.c" /* yacc.c:1646  */
+#line 2461 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 704 "calc.y" /* yacc.c:1646  */
+#line 777 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: No terms for PLUS available at line %d\n", currLine);}
-#line 2394 "parser.tab.c" /* yacc.c:1646  */
+#line 2467 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 706 "calc.y" /* yacc.c:1646  */
+#line 779 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing second term for subtraction at line %d\n", currLine);}
-#line 2400 "parser.tab.c" /* yacc.c:1646  */
+#line 2473 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 709 "calc.y" /* yacc.c:1646  */
+#line 782 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).val = (yyvsp[0].type_id).val; (yyval.type_id).datatype = (yyvsp[0].type_id).datatype;}
-#line 2406 "parser.tab.c" /* yacc.c:1646  */
+#line 2479 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 713 "calc.y" /* yacc.c:1646  */
+#line 786 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).val = (yyvsp[0].type_id).val; (yyval.type_id).datatype = (yyvsp[0].type_id).datatype;}
-#line 2412 "parser.tab.c" /* yacc.c:1646  */
+#line 2485 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 715 "calc.y" /* yacc.c:1646  */
+#line 788 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
                            { 
 			     std::string *code = new std::string;
@@ -2511,11 +2584,11 @@ yyreduce:
 			     (yyval.type_id).datatype = 1; 
                              }
 			   }
-#line 2515 "parser.tab.c" /* yacc.c:1646  */
+#line 2588 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 814 "calc.y" /* yacc.c:1646  */
+#line 887 "calc.y" /* yacc.c:1646  */
     { if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
                            { 
 			     std::string *code = new std::string;
@@ -2614,11 +2687,11 @@ yyreduce:
 			     (yyval.type_id).datatype = 1; 
                              }
                          }
-#line 2618 "parser.tab.c" /* yacc.c:1646  */
+#line 2691 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 913 "calc.y" /* yacc.c:1646  */
+#line 986 "calc.y" /* yacc.c:1646  */
     {if((yyvsp[-2].type_id).datatype == 1 && (yyvsp[0].type_id).datatype == 1)
                            { 
 			     std::string *code = new std::string;
@@ -2712,107 +2785,107 @@ yyreduce:
 			     (yyval.type_id).datatype = 1; 
                              }
 			}
-#line 2716 "parser.tab.c" /* yacc.c:1646  */
+#line 2789 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 1007 "calc.y" /* yacc.c:1646  */
+#line 1080 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing first term for multiplication at line %d\n", currLine);}
-#line 2722 "parser.tab.c" /* yacc.c:1646  */
+#line 2795 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 1009 "calc.y" /* yacc.c:1646  */
+#line 1082 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing second term for multiplication at line %d\n", currLine);}
-#line 2728 "parser.tab.c" /* yacc.c:1646  */
+#line 2801 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 1011 "calc.y" /* yacc.c:1646  */
+#line 1084 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing first term for division at line %d\n", currLine);}
-#line 2734 "parser.tab.c" /* yacc.c:1646  */
+#line 2807 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 1013 "calc.y" /* yacc.c:1646  */
+#line 1086 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing second term for division at line %d\n", currLine);}
-#line 2740 "parser.tab.c" /* yacc.c:1646  */
+#line 2813 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 1015 "calc.y" /* yacc.c:1646  */
+#line 1088 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing first term for modulus at line %d\n", currLine);}
-#line 2746 "parser.tab.c" /* yacc.c:1646  */
+#line 2819 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 1017 "calc.y" /* yacc.c:1646  */
+#line 1090 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: Missing second term for modulus at line %d\n", currLine);}
-#line 2752 "parser.tab.c" /* yacc.c:1646  */
+#line 2825 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 1019 "calc.y" /* yacc.c:1646  */
+#line 1092 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: No terms for MULT available at line %d\n", currLine);}
-#line 2758 "parser.tab.c" /* yacc.c:1646  */
+#line 2831 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 1021 "calc.y" /* yacc.c:1646  */
+#line 1094 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: No terms for DIV available at line %d\n", currLine);}
-#line 2764 "parser.tab.c" /* yacc.c:1646  */
+#line 2837 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 1023 "calc.y" /* yacc.c:1646  */
+#line 1096 "calc.y" /* yacc.c:1646  */
     {printf("Syntax error: No terms for PER available at line %d\n", currLine);}
-#line 2770 "parser.tab.c" /* yacc.c:1646  */
+#line 2843 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 1028 "calc.y" /* yacc.c:1646  */
+#line 1101 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += (yyvsp[-3].type_id).name; code += ("("); char ch [1024]; sprintf(ch, "%d", (yyvsp[-1].type_id).val); code += ch; code += (") "); (yyval.type_id).name = (char *)(code.c_str());}
-#line 2776 "parser.tab.c" /* yacc.c:1646  */
+#line 2849 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 92:
-#line 1030 "calc.y" /* yacc.c:1646  */
+#line 1103 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).name = (yyvsp[0].type_id).name; (yyval.type_id).datatype = 1;}
-#line 2782 "parser.tab.c" /* yacc.c:1646  */
+#line 2855 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 1032 "calc.y" /* yacc.c:1646  */
+#line 1105 "calc.y" /* yacc.c:1646  */
     {(yyval.type_id).val = (yyvsp[0].type_id).val; (yyval.type_id).datatype = 0;}
-#line 2788 "parser.tab.c" /* yacc.c:1646  */
+#line 2861 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 1034 "calc.y" /* yacc.c:1646  */
+#line 1107 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += "("; char ch [1024]; sprintf(ch, "%d", (yyvsp[-1].type_id).val); code += ch; code += ") "; (yyval.type_id).name = (char *)code.c_str();}
-#line 2794 "parser.tab.c" /* yacc.c:1646  */
+#line 2867 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 1036 "calc.y" /* yacc.c:1646  */
+#line 1109 "calc.y" /* yacc.c:1646  */
     {}
-#line 2800 "parser.tab.c" /* yacc.c:1646  */
+#line 2873 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 1038 "calc.y" /* yacc.c:1646  */
+#line 1111 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += "-"; char ch [1024]; sprintf(ch, "%d", (yyvsp[0].type_id).val); code += ch; (yyval.type_id).name = (char *)code.c_str();}
-#line 2806 "parser.tab.c" /* yacc.c:1646  */
+#line 2879 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 1040 "calc.y" /* yacc.c:1646  */
+#line 1113 "calc.y" /* yacc.c:1646  */
     {std::string code = ""; code += "-"; code += "("; char ch [1024]; sprintf(ch, "%d", (yyvsp[-1].type_id).val); code += ch; code += ") "; (yyval.type_id).name = (char *)code.c_str();}
-#line 2812 "parser.tab.c" /* yacc.c:1646  */
+#line 2885 "parser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2816 "parser.tab.c" /* yacc.c:1646  */
+#line 2889 "parser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3040,7 +3113,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1043 "calc.y" /* yacc.c:1906  */
+#line 1116 "calc.y" /* yacc.c:1906  */
 
 
 int main(int argc, char ** argv)

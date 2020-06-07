@@ -3,13 +3,19 @@ beginparams
 endparams
 beginlocals
 x : integer;
-j : integer;
+##j : integer;
 endlocals
 beginbody
-read x;
+##read x;
   if x < 9 and x > 2 then
     j := x * 10; 
-write x;
+##write x;
+endif;
+  if 8 <= a and a >= 5 then 
+    j := a * 5;
+endif;
+  if 5 == 5 and 4 >= 2 then
+    j := c * 6;
 endif;
 endbody 
 

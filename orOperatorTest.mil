@@ -1,0 +1,23 @@
+func main
+>= __temp__0, x, y
+<= __temp__1, a, b
+. __temp__2
+|| __temp__2, __temp__0, __temp__1
+. __temp__3
++ __temp__3, i, i
+= j, __temp__3
+<= __temp__4, a, c
+>= __temp__5, d, f
+. __temp__6
+|| __temp__6, __temp__4, __temp__5
+. __temp__7
++ __temp__7, i, i
+= j, __temp__7
+== __temp__8, n, m
+== __temp__9, j, k
+. __temp__10
+|| __temp__10, __temp__8, __temp__9
+. __temp__11
+-__temp__11, 5, 2
+= x, __temp__11
+endfunc
