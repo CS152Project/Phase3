@@ -2,7 +2,7 @@ function main;
 beginparams
 endparams
 beginlocals 
-x : integer;
+x : integer;  ## an integer
 endlocals
 beginbody
 read x;
