@@ -1,0 +1,16 @@
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+  if x >= y or a <= b then
+   j := i + i; 
+endif;
+   if a <= c or d >= f then
+     j := i+i;
+endif;
+   if n == m or j == k then 
+     x := 5 - 2;
+endif;
+endbody 
