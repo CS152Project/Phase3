@@ -2,11 +2,11 @@ function main;
 beginparams
 endparams
 beginlocals 
-x : integer;
+x : integer;  ## an integer
 endlocals
 beginbody
-z := b * c;
-b := x * y;
-q := d * e;
+read x;
+x := x * 10;
+write x;
 endbody
 

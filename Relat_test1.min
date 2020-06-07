@@ -1,0 +1,16 @@
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+  if 2 >= a then
+   j := i + i; 
+endif;
+   if 5 <= c then
+     j := i+i;
+endif;
+   if 3 == d then 
+     x := 5 - 2;
+endif;
+endbody 

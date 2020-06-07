@@ -1,10 +1,9 @@
 function main;
 beginparams
-a : integer;
-b : integer;
 endparams
 beginlocals
+a : integer; b : integer;
+a, x : integer; b : integer;
 endlocals
 beginbody
-a := b == c;
 endbody

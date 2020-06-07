@@ -1,0 +1,30 @@
+func main
+. x
+. __temp__0
+< __temp__0, x, 9
+. __temp__1
+> __temp__1, x, 2
+. __temp__2
+&& __temp__2, __temp__0, __temp__1
+. __temp__3
+* __temp__3, x, 10
+= j, __temp__3
+. __temp__4
+<= __temp__4, 8, a
+. __temp__5
+>= __temp__5, a, 5
+. __temp__6
+&& __temp__6, __temp__4, __temp__5
+. __temp__7
+* __temp__7, a, 5
+= j, __temp__7
+. __temp__8
+== __temp__8, 5, 5
+. __temp__9
+>= __temp__9, 4, 2
+. __temp__10
+&& __temp__10, __temp__8, __temp__9
+. __temp__11
+* __temp__11, c, 6
+= j, __temp__11
+endfunc

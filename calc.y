@@ -16,7 +16,7 @@ bool no_error = true;
 std::string Temp();
 std::string newLabel();
  
-std::string Temp() 
+std::string Temp() // This is so we can generate temps 
 {
    static int num_temps = 0;
    std::string temp = "__temp__" + std::to_string(num_temps++);
@@ -28,7 +28,8 @@ std::string make_labels()
      std::string label = "__label__" + std::to_string(num_labels++);
      return label;
    }
-
+std::string final_code = ""; // global variable so we run the code
+std::string filename = "";
 %}
 
 %union {   
@@ -61,45 +62,54 @@ std::string make_labels()
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET 
 %left L_PAREN R_PAREN
 
-%type <type_id> program statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression    
+%type <type_id> program function functions statements expression expressions multiplicative_expression statement term var vars ident declaration relation_expression comp LT relation_and_expression declarations bool_expression     
 
 %%
 
-start_program: program {if(no_error) 
-	                 { 
-		           std::ofstream file;
-                           file.open ("varTest.mil", std::ostream::in | std::ostream::out | std::ostream::app); 		
-                         } 
-                     }
-	    /* printf("%s\n", $1.val);}  */
+start_program: program 
+	        {if(no_error)
+	           {
+                    // printf("%s\n", $1.name);
+		     std::ofstream file;
+	             filename[filename.length() - 1] = 'l'; 
+                     file.open (filename.c_str(), std::ios::app);
+                     file << final_code;
+	             file.close();        
+                   }
+                }
 
 program: /*empty*/
        {
-        //$$ = ""
+       // std::string tempMain = "";
        }
        | functions program  
        {
-        //$$ = $1 + "\n" + $2
+        $$.name = $1.name;
        }
        ;
 functions: /*empty*/
 	   {} 
        | function functions
-       {}
+       {$$.name = $1.name;}
        ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
 	{
-         //$$ = "func" + $2 + "\n";
-         //$$ += $5.name + "\n";
-         //$$ += $8 + "\n";
-         //$$ += $11 + "\n"
-         //$$ += "endfunc";
+       	  std::string *code = new std::string; // Intialize string code pointer
+          code->append("func "); // add or append to func, should output func in mil file
+	  code->append($2.name); 
+          code->append("\n"); // add new line
+          final_code.insert(0, *code); 
+          final_code.append("endfunc"); 
+          final_code.append("\n");
+	  std::cout << *code << std::endl;
+          $$.name = $2.name;
         } 
        ;
 declarations: /*empty*/
-	   {}
-        | declaration SEMICOLON declarations 
-           {}
+	   {/*$$.name = "" */} 
+        | declaration SEMICOLON declarations
+          { 
+          }
         | error SEMICOLON declarations
            {printf("syntax error: Missing declaration at line %d\n", currLine);}
         | declaration error declarations 
@@ -108,11 +118,11 @@ declarations: /*empty*/
            {printf("syntax error: Missing declarations at line %d\n", currLine);}
 	;
 declaration: ident COLON INTEGER
-           {std::string x; x = $1.name; std::string code = ""; code += ". "; code += x; code += "\n"; std::cout << code << std::endl;}
+           {std::string x; x = $1.name; std::string code = ""; code += ". "; code += x; code += "\n"; final_code.append(code); std::cout << code << std::endl;}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; final_code.append(code); std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
+	  {std::string code = ""; code += $1.name; code += ":"; code += " array "; code += "["; char ch [1024]; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += "["; sprintf(ch, "%d", $1.val); code += ch; code += "]"; code += " of "; code += " integer "; final_code.append(code); std:: cout << code << std::endl; $$.name = (char*)code.c_str();}
         | error COLON INTEGER
           {printf("syntax error: missing identifier at line %d\n", currLine);}
         | ident error INTEGER 
@@ -142,16 +152,31 @@ statement: var ASSIGN expressions
 	   {if($3.datatype == 1) 
             {
                printf("= %s, %s\n", $1.name, $3.name);
+               std::string *code = new std::string(); //created a new string code pointer and intialized the code pointer
+               code->append("= "); // add or append =, which should output to mil
+               code->append($1.name);  
+               code->append(", "); 
+               code->append($3.name);
+               code->append("\n");
+               final_code.append(*code); 
+               
             }
             else
              {
                printf("= %s, %d\n", $1.name, $3.val);
+               std::string *code = new std::string(); //created a new string pointer called code and initialized code pointer
+               code->append("= "); // append = to code, output to mil
+               code->append($1.name); // output to mil 
+               code->append(", "); 
+               code->append(std::to_string($3.val)); // first append then convert the string to a number
+               code->append("\n");
+               final_code.append(*code); 
              }
            } 
          | IF bool_expression THEN statements ENDIF
-         {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}
+           {}
          | IF bool_expression THEN statements ELSE statements ENDIF
-         {printf("statement->IF bool_expression THEN statements SEMICOLON ENDIF\n");}  
+         {}  
          | WHILE bool_expression BEGINLOOP statements ENDLOOP
          {printf("statement->WHILE bool_expression BEGINLOOP statements SEMICOLON ENDLOOP\n");}
          | DO BEGINLOOP statements ENDLOOP WHILE bool_expression
@@ -159,11 +184,23 @@ statement: var ASSIGN expressions
          | FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements ENDLOOP
          {printf("statement->FOR vars ASSIGN NUMBER SEMICOLON bool_expression SEMICOLON vars ASSIGN expressions BEGINLOOP statements SEMICOLON ENDLOOP\n");}
          | READ vars 
-         {printf(".< %s\n", $2.name);}  
+         {printf(".< %s\n", $2.name);
+          std::string *code = new std::string();
+          code->append(".< ");
+          code->append($2.name);
+          code->append("\n");
+          final_code.append(*code); 
+         }  
          | READ error
          {printf("syntax error: no variables at line %d\n", currLine);}
          | WRITE vars
-         {printf(".> %s\n", $2.name); std::string name = "bobby";} 
+         {printf(".> %s\n", $2.name);
+          std::string *code = new std::string();
+          code->append(".> ");
+          code->append($2.name);
+          code->append("\n");
+          final_code.append(*code); 
+         } 
          | WRITE error
          {printf("syntax error: no variable at line %d\n", currLine);}
          | CONTINUE
@@ -173,14 +210,206 @@ statement: var ASSIGN expressions
          ;
 
 bool_expression: relation_and_expression
-		{printf("bool_expression->relation_and_expression\n");}
+		{$$.name = $1.name; $$.datatype = 1;}
               | relation_and_expression OR relation_and_expression
-                {printf("bool_expression->relation_and_expression OR relation_and_expression\n");}
+                {if($1.datatype == 1 || $3.datatype == 1)
+                 {
+                    std::string *code = new std::string; 
+                    std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+                    tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                  //  code->append(*tmp);
+                    final_code.append(*x);
+                    code->append("|| ");
+                    code->append(*tmp); 
+                    code->append(", ");
+                    code->append($1.name);
+                    code->append(", ");
+                    code->append($3.name);
+                    final_code.append(*code);
+                    final_code.append("\n");
+                    std::cout << *code << std::endl;
+                    $$.name = (char *)(code->c_str());
+                    $$.datatype = 1; 
+                 } 
+	        else if($1.datatype == 1 || $3.datatype == 0)
+                 {
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	            code->append("|| " );
+	            code->append(*tmp);
+	            code->append(", ");
+   	            code->append($1.name);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $3.val);
+		    code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str()); 
+	            $$.datatype = 1; 
+                 }      
+               else if($1.datatype == 0 || $3.datatype == 1)
+                 {           
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+		    code->append(*tmp);
+	            code->append(", ");
+   		    code->append(std::to_string($1.val));
+		    code->append(", ");
+		    code->append($3.name);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str());
+	            $$.datatype = 1; 
+                }  
+	       else
+                {    
+	            std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("|| ");
+	            code->append(*tmp);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $1.val);
+	            code->append(ch);
+	            code->append(", ");
+                    sprintf(ch, "%d", $3.val);
+	            code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            $$.name = (char *)tmp->c_str();
+                    $$.datatype = 1; 
+                }
+               }
          ;
 relation_and_expression: relation_expression
-		       {printf("relation_and_expression->relation_expression\n");}
+		   {$$.name = $1.name; $$.datatype = 1;}
                  | relation_expression AND relation_expression
-		       {printf("relation_and_expressions->relation_expression OR relation_expression\n");}
+		{if($1.datatype == 1 && $3.datatype == 1)
+                  {
+                    std::string *code = new std::string; 
+                    std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+                    tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                  //  code->append(*tmp);
+                    final_code.append(*x);
+                    code->append("&& ");
+                    code->append(*tmp); 
+                    code->append(", ");
+                    code->append($1.name);
+                    code->append(", ");
+                    code->append($3.name);
+                    final_code.append(*code);
+                    final_code.append("\n");
+                    std::cout << *code << std::endl;
+                    $$.name = (char *)(code->c_str());
+                    $$.datatype = 1; 
+                 } 
+	        else if($1.datatype == 1 && $3.datatype == 0)
+                 {
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string;
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	            code->append("&& " );
+	            code->append(*tmp);
+	            code->append(", ");
+   	            code->append($1.name);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $3.val);
+		    code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str()); 
+	            $$.datatype = 1; 
+                 }      
+               else if($1.datatype == 0 && $3.datatype == 1)
+                 {           
+                    std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("&& ");
+		    code->append(*tmp);
+	            code->append(", ");
+   		    code->append(std::to_string($1.val));
+		    code->append(", ");
+		    code->append($3.name);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+		    $$.name = (char *)(tmp->c_str());
+	            $$.datatype = 1; 
+                }  
+	       else
+                {    
+	            std::string *code = new std::string;
+	            std::string *tmp = new std::string; 
+                    std::string *x = new std::string;
+                    x->append(". ");
+	            tmp->append(Temp());
+                    x->append(*tmp);
+                    x->append("\n");
+                    final_code.append(*x);
+	      //    tmp->append(Temp());
+	            code->append("&& ");
+	            code->append(*tmp);
+	            code->append(", ");
+                    char ch[1024];
+	            sprintf(ch, "%d", $1.val);
+	            code->append(ch);
+	            code->append(", ");
+                    sprintf(ch, "%d", $3.val);
+	            code->append(ch);
+	            std::cout << *code << std::endl;
+                    final_code.append(*code);
+                    final_code.append("\n");
+	            $$.name = (char *)tmp->c_str();
+                    $$.datatype = 1; 
+                }
+              }
          ;
 relation_expression: NOT expressions comp expressions
 		  {printf("relation_expression->NOT expressions comp expressions\n");}
@@ -190,40 +419,136 @@ relation_expression: NOT expressions comp expressions
                  {printf("relation_expression->NOT FALSE\n");}
                  | NOT L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->NOT L_PAREN bool_expressions R_PAREN\n");} 
-                 | expressions comp expressions 
-                 { }
+                 | expressions comp expressions
+                     
+           {if($1.datatype == 1 && $3.datatype == 1)
+              { 
+       	         std::string *code = new std::string;
+             	 std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
+	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                // code->append(*tmp);
+                 final_code.append(*code);
+               	 code->append($2.name);
+	         code->append(*tmp);
+	         code->append(", ");
+   	         code->append($1.name);
+	         code->append(", ");
+		 code->append($3.name);
+                 final_code.append(*code);
+                 final_code.append("\n");
+	         std::cout << *code << std::endl;
+		 $$.name = (char *)(tmp->c_str());
+                 $$.datatype = 1; 
+             }   
+	   else if($1.datatype == 1 && $3.datatype == 0)
+             {
+                 std::string *code = new std::string;
+	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
+	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	         code->append($2.name);
+	         code->append(*tmp);
+	         code->append(", ");
+   	         code->append($1.name);
+	         code->append(", ");
+                 char ch[1024];
+	         sprintf(ch, "%d", $3.val);
+		 code->append(ch);
+	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
+		 $$.name = (char *)(tmp->c_str()); 
+	         $$.datatype = 1; 
+             }      
+           else if($1.datatype == 0 && $3.datatype == 1)
+             {           
+                 std::string *code = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
+	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append($2.name);
+		 code->append(*tmp);
+	         code->append(", ");
+   		 code->append(std::to_string($1.val));
+		 code->append(", ");
+		 code->append($3.name);
+	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
+		 $$.name = (char *)(tmp->c_str());
+	         $$.datatype = 1; 
+             }  
+	   else
+             {    
+	         std::string *code = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
+	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append($2.name);
+	         code->append(*tmp);
+	         code->append(", ");
+                 char ch[1024];
+	         sprintf(ch, "%d", $1.val);
+	         code->append(ch);
+	         code->append(", ");
+                 sprintf(ch, "%d", $3.val);
+	         code->append(ch);
+	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
+	         $$.name = (char *)tmp->c_str();
+                 $$.datatype = 1; 
+            }
+          }
                  | TRUE 
                  { std::string temp = "1"; $$.name = *char.c_str; $$.datatype = 0; }
                  | FALSE
-                 { }
+                 {$$.name = $1.name;}
                  | L_PAREN bool_expression R_PAREN
                  {printf("relation_expression->L_PAREN bool_expressions R_PAREN\n");}
                  | L_PAREN error R_PAREN
                  {printf("syntax error: missing bool_expression in line %d\n", currLine);}
                  | NOT L_PAREN error R_PAREN
                  {printf("synax error: missing bool_expression in line %d\n", currLine);}
-         ;
 
 comp: EQ
-    {$$.name = (char *)("==");} 
+    {$$.name = (char *)("== ");} 
      | NEQ 
-    {$$.name = (char *)("!=");}
+    {$$.name = (char *)("!= ");}
      | LT
-    {$$.name = (char *)("<");}
+    {$$.name = (char *)("< ");}
      | GT
-    {$$.name = (char *)(">");}
+    {$$.name = (char *)("> ");}
      | GTE
-    {$$.name = (char *)(">=");}
+    {$$.name = (char *)(">= ");}
      | LTE
-    {$$.name = (char *)("<=");}
+    {$$.name = (char *)("<= ");}
      | error 
     {printf("syntax error: missing EQ, NEQ, LT, GT, GTE or LTE in line %d\n", currLine);}
    ;
 
-var: IDENT  
+var: IDENT     
     {$$.name = $1.name; $$.datatype = 1;} 
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
-    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str(); $$.datatype = 1;}  
+    {std::string code = ""; code += $1.name; code += "["; char ch [1024]; sprintf(ch, "%d", $3.val); code += ch; code += "]"; std::cout << code << std::endl; $$.name = (char *)code.c_str(); $$.datatype = 1;}
     | error L_SQUARE_BRACKET expression R_SQUARE_BRACKET
     {printf("syntax error: missing identifier in line %d\n", currLine);}
     | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET L_SQUARE_BRACKET expression R_SQUARE_BRACKET
@@ -253,13 +578,20 @@ expression: multiplicative_expression
               { 
        	         std::string *code = new std::string;
          	 std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-               	 code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+               	 code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
 	         code->append(", ");
 		 code->append($3.name);
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         std::cout << *code << std::endl;
 		 $$.name = (char *)(tmp->c_str());
                  $$.datatype = 1;
@@ -268,8 +600,13 @@ expression: multiplicative_expression
              {
                  std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	         code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -278,30 +615,46 @@ expression: multiplicative_expression
 	         sprintf(ch, "%d", $3.val);
 		 code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str()); 
 	         $$.datatype = 1; 
              }      
            else if($1.datatype == 0 && $3.datatype == 1)
              {           
                  std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append("+ ");
 		 code->append(*tmp);
 	         code->append(", ");
    		 code->append(std::to_string($1.val));
 		 code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
 	         $$.datatype = 1; 
              }  
 	   else
              {    
 	         std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("+");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+	         code->append("+ ");
 	         code->append(*tmp);
 	         code->append(", ");
                  char ch[1024];
@@ -311,6 +664,8 @@ expression: multiplicative_expression
                  sprintf(ch, "%d", $3.val);
 	         code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         $$.name = (char *)tmp->c_str();
                  $$.datatype = 1; 
             }
@@ -319,24 +674,38 @@ expression: multiplicative_expression
            {if($1.datatype == 1 && $3.datatype == 1)
               { 
        	         std::string *code = new std::string;
-         	 std::string *tmp = new std::string;
+         	 std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-               	 code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	      // tmp->append(Temp());
+               	 code->append("- ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
 	         code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
                  $$.datatype = 1;
              }
 	   else if($1.datatype == 1 && $3.datatype == 0)
              {
                  std::string *code = new std::string;
-	         std::string *tmp = new std::string;
+	         std::string *tmp = new std::string; 
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	       //  tmp->append(Temp());
+	         code->append("- ");
 	         code->append(*tmp);
 	         code->append(", ");
    	         code->append($1.name);
@@ -345,6 +714,8 @@ expression: multiplicative_expression
 	         sprintf(ch, "%d", $3.val);
 		 code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str()); 
 	         $$.datatype = 1; 
              }      
@@ -352,14 +723,22 @@ expression: multiplicative_expression
              {           
                  std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
-	         code->append("-");
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	     //  tmp->append(Temp());
+	         code->append("- ");
 		 code->append(*tmp);
 	         code->append(", ");
    		 code->append(std::to_string($1.val));
 		 code->append(", ");
 		 code->append($3.name);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 		 $$.name = (char *)(tmp->c_str());
 	         $$.datatype = 1; 
              }  
@@ -367,7 +746,13 @@ expression: multiplicative_expression
              {    
 	         std::string *code = new std::string;
 	         std::string *tmp = new std::string;
+                 std::string *x = new std::string;
+                 x->append(". ");
 	         tmp->append(Temp());
+                 x->append(*tmp);
+                 x->append("\n");
+                 final_code.append(*x);
+	     //  tmp->append(Temp());
 	         code->append("-");
 	         code->append(*tmp);
 	         code->append(", ");
@@ -378,6 +763,8 @@ expression: multiplicative_expression
                  sprintf(ch, "%d", $3.val);
 	         code->append(ch);
 	         std::cout << *code << std::endl;
+                 final_code.append(*code);
+                 final_code.append("\n");
 	         $$.name = (char *)tmp->c_str();
                  $$.datatype = 1; 
             }
@@ -401,16 +788,23 @@ multiplicative_expression: term
                            {if($1.datatype == 1 && $3.datatype == 1)
                            { 
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
-                           //std::cout << "s" << std::endl;
 			     code->append(", ");
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
+			     final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -418,8 +812,14 @@ multiplicative_expression: term
                             {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -428,6 +828,8 @@ multiplicative_expression: term
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
 			     std::cout << *code << std::endl;
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -435,24 +837,37 @@ multiplicative_expression: term
                             { 
 		               
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string;  
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
 			     std::cout << *code << std::endl;
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("*");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			     code->append("* ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
@@ -461,7 +876,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
@@ -470,24 +887,37 @@ multiplicative_expression: term
                          { if($1.datatype == 1 && $3.datatype == 1)
                            { 
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string;  
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
 			   else if($1.datatype == 1 && $3.datatype == 0)
                             {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
 			     tmp->append(Temp());
-			     code->append("/");
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -495,7 +925,9 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -503,24 +935,38 @@ multiplicative_expression: term
                             { 
 		               
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("/");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			  // tmp->append(Temp());
+			     code->append("/ ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
@@ -529,7 +975,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
@@ -539,14 +987,22 @@ multiplicative_expression: term
                            { 
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1;
 			   }
@@ -554,8 +1010,14 @@ multiplicative_expression: term
                             {    
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+			 //  tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append($1.name);
@@ -563,7 +1025,9 @@ multiplicative_expression: term
 			     char ch[1024];
 			     sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str()); 
 			     $$.datatype = 1; 
                             }      
@@ -573,22 +1037,30 @@ multiplicative_expression: term
 			     std::string *code = new std::string;
 			     std::string *tmp = new std::string;
 			     tmp->append(Temp());
-			     code->append("%");
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
    			     code->append(std::to_string($1.val));
 			     code->append(", ");
 			     code->append($3.name);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)(tmp->c_str());
 			     $$.datatype = 1; 
                             }  
 		             else
                              {    
 			     std::string *code = new std::string;
-			     std::string *tmp = new std::string;
-			     tmp->append(Temp());
-			     code->append("%");
+			     std::string *tmp = new std::string; 
+                             std::string *x = new std::string;
+                             x->append(". ");
+	                     tmp->append(Temp());
+                             x->append(*tmp);
+                             x->append("\n");
+                             final_code.append(*x);
+		       //    tmp->append(Temp());
+			     code->append("% ");
 			     code->append(*tmp);
 			     code->append(", ");
                              char ch[1024];
@@ -597,7 +1069,9 @@ multiplicative_expression: term
 			     code->append(", ");
                              sprintf(ch, "%d", $3.val);
 			     code->append(ch);
-			     std::cout << *code << std::endl;
+			     std::cout << *code << std::endl; 
+                             final_code.append(*code);
+                             final_code.append("\n");
 		             $$.name = (char *)tmp->c_str();
 			     $$.datatype = 1; 
                              }
@@ -650,6 +1124,7 @@ int main(int argc, char ** argv)
        { 
           yyin = stdin;
        }
+       filename = argv[1];
     }  
     else 
     {
