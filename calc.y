@@ -174,15 +174,7 @@ statement: var ASSIGN expressions
              }
            } 
          | IF bool_expression THEN statements ENDIF
-           {   
-             //  std::string second_Label = newLabel();
-             //  std::string *code = new std::string();
-             //  std::string *tmp = new std::string();
-             //  second_Label.append(": ");
-             //  second_Label.append("\n");
-             //  code->append(second_Label);
-             //  code->append("\n");
-             //  final_code.append(*code);
+           {     
            }
          | IF bool_expression THEN statements ELSE statements ENDIF
          {}  
@@ -226,19 +218,10 @@ bool_expression: relation_and_expression
                     std::string *code = new std::string; 
                     std::string *tmp = new std::string;
                     std::string *x = new std::string;
-                 //   std::string first_Label = newLabel();
-                 //   first_Label.append(": ");
-                  //  first_Label.append("\n");
-                  //  first_Label.append(first_Label);
-            	  //  first_Label.append("\n");
-                  //  final_code.append(first_Label);
-                  //  code->append($1.name);
-                  //  code->append("?:= ");
                     x->append(". ");
                     tmp->append(Temp());
                     x->append(*tmp);
                     x->append("\n");
-                  //  code->append(*tmp);
                     final_code.append(*x);
                     code->append("|| ");
                     code->append(*tmp); 
@@ -246,11 +229,6 @@ bool_expression: relation_and_expression
                     code->append($1.name);
                     code->append(", ");
                     code->append($3.name);
-                //    code->append("?:= ");
-                 //   code->append(first_Label);
-                //    code->append(", ");
-                //    code->append($1.name);
-                //    code->append("\n");  
                     final_code.append(*code);
                     final_code.append("\n");
                     std::cout << *code << std::endl;
@@ -261,7 +239,7 @@ bool_expression: relation_and_expression
                  {
                     std::string *code = new std::string;
 	            std::string *tmp = new std::string;
-                    std::string *x = new std::string;
+                    std::string *x = new std::string; 
                     x->append(". ");
 	            tmp->append(Temp());
                     x->append(*tmp);
@@ -308,7 +286,7 @@ bool_expression: relation_and_expression
                 {    
 	            std::string *code = new std::string;
 	            std::string *tmp = new std::string; 
-                    std::string *x = new std::string;
+                    std::string *x = new std::string; 
                     x->append(". ");
 	            tmp->append(Temp());
                     x->append(*tmp);
@@ -339,7 +317,7 @@ relation_and_expression: relation_expression
                   {
                     std::string *code = new std::string; 
                     std::string *tmp = new std::string;
-                    std::string *x = new std::string;
+                    std::string *x = new std::string; 
                     x->append(". ");
                     tmp->append(Temp());
                     x->append(*tmp);

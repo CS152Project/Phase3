@@ -1,0 +1,24 @@
+func main
+. z
+. __temp__0
++ __temp__0, b, c
+= a, __temp__0
+. __temp__1
++ __temp__1, 2, 3
+= b, __temp__1
+. __temp__2
++ __temp__2, 4, x
+= d, __temp__2
+. __temp__3
++ __temp__3, n, 8
+= e, __temp__3
+. __temp__4
++ __temp__4, h, g
+. __temp__5
++ __temp__5, f, __temp__4
+. __temp__6
++ __temp__6, 2, __temp__5
+. __temp__7
++ __temp__7, 9, __temp__6
+= k, __temp__7
+endfunc

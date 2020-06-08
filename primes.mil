@@ -1,0 +1,106 @@
+func main
+. n
+a: array [0] of  integer . i
+. j
+
+. x
+. sqrt_n
+
+.< n
+= x, n
+. __temp__0
+/ __temp__0, n, x
+> __temp__1, x, __temp__0
+. __temp__2
+/ __temp__2, n, x
+. __temp__3
++ __temp__3, x, __temp__2
+. __temp__4
+/ __temp__4, 1000, 2
+= x, __temp__4
+= sqrt_n, x
+= i, 2
+<= __temp__5, i, n
+= a[2], 0
+. __temp__6
++ __temp__6, i, 1
+= i, __temp__6
+= i, 2
+<= __temp__7, i, sqrt_n
+. __temp__8
+== __temp__8, __temp__8, 0
+. __temp__9
++ __temp__9, i, i
+= j, __temp__9
+<= __temp__10, j, n
+= a[0], 1
+. __temp__11
++ __temp__11, j, i
+= j, __temp__11
+__Label__0
+?:= __temp__12. __temp__13
++ __temp__13, i, 1
+= i, __temp__13
+= i, 2
+<= __temp__14, i, n
+. __temp__15
+== __temp__15, __temp__15, 0
+.> i
+__Label__2
+?:= __temp__16. __temp__17
++ __temp__17, i, 1
+= i, __temp__17
+endfunc
+func main
+. n
+a: array [0] of  integer . i
+. j
+
+. x
+. sqrt_n
+
+.< n
+= x, n
+. __temp__0
+/ __temp__0, n, x
+> __temp__1, x, __temp__0
+. __temp__2
+/ __temp__2, n, x
+. __temp__3
++ __temp__3, x, __temp__2
+. __temp__4
+/ __temp__4, 1000, 2
+= x, __temp__4
+= sqrt_n, x
+= i, 2
+<= __temp__5, i, n
+= a[2], 0
+. __temp__6
++ __temp__6, i, 1
+= i, __temp__6
+= i, 2
+<= __temp__7, i, sqrt_n
+. __temp__8
+== __temp__8, __temp__8, 0
+. __temp__9
++ __temp__9, i, i
+= j, __temp__9
+<= __temp__10, j, n
+= a[0], 1
+. __temp__11
++ __temp__11, j, i
+= j, __temp__11
+__Label__0:= 
+. __temp__12
++ __temp__12, i, 1
+= i, __temp__12
+= i, 2
+<= __temp__13, i, n
+. __temp__14
+== __temp__14, __temp__14, 0
+.> i
+__Label__2:= 
+. __temp__15
++ __temp__15, i, 1
+= i, __temp__15
+endfunc

@@ -5,10 +5,16 @@ beginlocals
 endlocals
 beginbody
   if i<j and j < n then
-    j := i + i; 
+    j := i + i;
 endif;
-   if a <= c and d >= f then
-     j := i+i;
+  if i > j and j > n then 
+    j := i + 1;
 endif;
+  if i >= 5 and 5 <= n then 
+    j := i + 2;
+endif;
+  if 2 == 2 and 3 == 3 then 
+    j := 0;
+endif;
+    j := 1; 
 endbody 
-  
